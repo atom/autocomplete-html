@@ -5,17 +5,42 @@ path = require 'path'
 fs = require 'fs'
 request = require 'request'
 
-requestOptions =
-  url: 'https://raw.githubusercontent.com/adobe/brackets/master/src/extensions/default/HTMLCodeHints/HtmlTags.json'
-  json: true
-
-request requestOptions, (error, response, tags) ->
+exitIfError = (error) ->
   if error?
     console.error(error.message)
     return process.exit(1)
 
-  if response.statusCode isnt 200
-    console.error("Request for HtmlTags.json failed: #{response.statusCode}")
-    return process.exit(1)
+getTags = (callback) ->
+  requestOptions =
+    url: 'https://raw.githubusercontent.com/adobe/brackets/master/src/extensions/default/HTMLCodeHints/HtmlTags.json'
+    json: true
 
-  fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(tags, null, 0)}\n")
+  request requestOptions, (error, response, tags) ->
+    return callback(error) if error?
+
+    if response.statusCode isnt 200
+      return callback(new Error("Request for HtmlTags.json failed: #{response.statusCode}"))
+
+    callback(null, tags)
+
+getAttributes = (callback) ->
+  requestOptions =
+    url: 'https://raw.githubusercontent.com/adobe/brackets/master/src/extensions/default/HTMLCodeHints/HtmlAttributes.json'
+    json: true
+
+  request requestOptions, (error, response, attributes) ->
+    return callback(error) if error?
+
+    if response.statusCode isnt 200
+      return callback(new Error("Request for HtmlAttributes.json failed: #{response.statusCode}"))
+
+    callback(null, attributes)
+
+getTags (error, tags) ->
+  exitIfError(error)
+
+  getAttributes (error, attributes) ->
+    exitIfError(error)
+
+    completions = {tags, attributes}
+    fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(completions, null, 0)}\n")

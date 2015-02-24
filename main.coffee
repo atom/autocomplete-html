@@ -12,7 +12,11 @@ module.exports =
   getProvider: -> providers: [this]
 
   requestHandler: (request) ->
-    if @isTagStartWithNoPrefix(request)
+    if @isAttributeStartWithNoPrefix(request)
+      @getAllAttributeCompletions()
+    else if @isAttributeStartWithPrefix(request)
+      @getAttributeCompletionsForPrefix(request.prefix)
+    else if @isTagStartWithNoPrefix(request)
       @getAllTagNameCompletions()
     else if @isTagStartTagWithPrefix(request)
       @getTagNameCompletionsForPrefix(request.prefix)
@@ -24,24 +28,53 @@ module.exports =
     prefix is '<' and scopes.length is 1 and scopes[0] is 'text.html.basic'
 
   isTagStartTagWithPrefix: ({prefix, scope}) ->
+    return false unless prefix
     return false if trailingWhitespace.test(prefix)
 
     scopes = scope.getScopesArray()
     scopes.indexOf('meta.tag.other.html') isnt -1 or
-    scopes.indexOf('meta.tag.block.any.html') isnt -1 or
-    scopes.indexOf('meta.tag.inline.any.html') isnt -1 or
-    scopes.indexOf('meta.tag.structure.any.html') isnt -1
+      scopes.indexOf('meta.tag.block.any.html') isnt -1 or
+      scopes.indexOf('meta.tag.inline.any.html') isnt -1 or
+      scopes.indexOf('meta.tag.structure.any.html') isnt -1
+
+  isAttributeStartWithNoPrefix: ({prefix, scope}) ->
+    return false unless trailingWhitespace.test(prefix)
+
+    scopes = scope.getScopesArray()
+    scopes.indexOf('meta.tag.other.html') isnt -1 or
+      scopes.indexOf('meta.tag.block.any.html') isnt -1 or
+      scopes.indexOf('meta.tag.inline.any.html') isnt -1 or
+      scopes.indexOf('meta.tag.structure.any.html') isnt -1
+
+  isAttributeStartWithPrefix: ({prefix, scope}) ->
+    return false unless prefix
+    return false if trailingWhitespace.test(prefix)
+
+    scopes = scope.getScopesArray()
+    scopes.indexOf('entity.other.attribute-name.html') isnt -1
 
   getAllTagNameCompletions: ->
     completions = []
-    for tag, attributes of @completions
+    for tag, attributes of @completions.tags
       completions.push({word: tag, prefix: ''})
     completions
 
   getTagNameCompletionsForPrefix: (prefix) ->
     completions = []
-    for tag, attributes of @completions when tag.indexOf(prefix) is 0
+    for tag, attributes of @completions.tags when tag.indexOf(prefix) is 0
       completions.push({word: tag, prefix})
+    completions
+
+  getAllAttributeCompletions: ->
+    completions = []
+    for attribute, options of @completions.attributes
+      completions.push({word: attribute, prefix: ''}) if options.global
+    completions
+
+  getAttributeCompletionsForPrefix: (prefix) ->
+    completions = []
+    for attribute, options of @completions.attributes when attribute.indexOf(prefix) is 0
+      completions.push({word: attribute, prefix}) if options.global
     completions
 
   loadCompletions: ->
