@@ -81,3 +81,13 @@ describe "HTML autocompletions", ->
     expect(completions[0].word).toBe 'class'
     expect(completions[1].word).toBe 'contenteditable'
     expect(completions[2].word).toBe 'contextmenu'
+
+    editor.setText('<div c>')
+    editor.setCursorBufferPosition([0, 6])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 3
+
+    expect(completions[0].word).toBe 'class'
+    expect(completions[1].word).toBe 'contenteditable'
+    expect(completions[2].word).toBe 'contextmenu'
