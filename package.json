@@ -1,0 +1,18 @@
+{
+  "name": "autocomplete-html",
+  "version": "0.1.0",
+  "description": "HTML element and attribute autocompletions",
+  "main": "./main",
+  "license": "MIT",
+  "repository": "https://github.com/atom/autocomplete-html",
+  "providedServices": {
+    "autocomplete.provider": {
+      "versions": {
+        "1.1.0": "getProvider"
+      }
+    }
+  },
+  "devDependencies": {
+    "request": "^2.53.0"
+  }
+}
