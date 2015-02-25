@@ -9,10 +9,6 @@ module.exports =
   selector: '.text.html'
   id: 'autocomplete-html-htmlprovider'
 
-  activate: -> @loadCompletions()
-
-  getProvider: -> providers: [this]
-
   requestHandler: (request) ->
     if @isAttributeValueStartWithNoPrefix(request)
       @getAllAttributeValueCompletions(request)
@@ -129,7 +125,7 @@ module.exports =
 
   loadCompletions: ->
     @completions = {}
-    fs.readFile path.join(__dirname, 'completions.json'), (error, content) =>
+    fs.readFile path.resolve(__dirname, '..', 'completions.json'), (error, content) =>
       @completions = JSON.parse(content) unless error?
       return
 
