@@ -89,6 +89,15 @@ describe "HTML autocompletions", ->
     for completion in completions
       expect(completion.word.length).toBeGreaterThan 0
 
+    editor.setText('<marquee ')
+    editor.setCursorBufferPosition([0, 9])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 81
+
+    for completion in completions
+      expect(completion.word.length).toBeGreaterThan 0
+
   it "autocompletes attribute names with a prefix", ->
     editor.setText('<div c')
     editor.setCursorBufferPosition([0, 6])
@@ -119,6 +128,15 @@ describe "HTML autocompletions", ->
     expect(completions[0].word).toBe 'class'
     expect(completions[1].word).toBe 'contenteditable'
     expect(completions[2].word).toBe 'contextmenu'
+
+    editor.setText('<marquee di')
+    editor.setCursorBufferPosition([0, 12])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 2
+
+    expect(completions[0].word).toBe 'dir'
+    expect(completions[1].word).toBe 'direction'
 
   it "autocompletes attribute values without a prefix", ->
     editor.setText('<div behavior=""')

@@ -3,6 +3,7 @@ path = require 'path'
 
 trailingWhitespace = /\s$/
 attributePattern = /\s+([a-z][-a-z]*)\s*=\s*$/
+tagPattern = /(?:^|\s|>)<([a-z][-a-z]*)(?:\s|$)/
 
 module.exports =
   selector: '.text.html'
@@ -16,15 +17,15 @@ module.exports =
     if @isAttributeValueStartWithNoPrefix(request)
       @getAllAttributeValueCompletions(request)
     else if @isAttributeValueStartWithPrefix(request)
-      @getAttributeValueCompletionsForPrefix(request)
+      @getAttributeValueCompletions(request)
     else if @isAttributeStartWithNoPrefix(request)
-      @getAllAttributeNameCompletions()
+      @getAllAttributeNameCompletions(request)
     else if @isAttributeStartWithPrefix(request)
-      @getAttributeNameCompletionsForPrefix(request.prefix)
+      @getAttributeNameCompletions(request)
     else if @isTagStartWithNoPrefix(request)
       @getAllTagNameCompletions()
     else if @isTagStartTagWithPrefix(request)
-      @getTagNameCompletionsForPrefix(request.prefix)
+      @getTagNameCompletions(request)
     else
       []
 
@@ -82,34 +83,35 @@ module.exports =
       completions.push({word: tag, prefix: ''})
     completions
 
-  getTagNameCompletionsForPrefix: (prefix) ->
+  getTagNameCompletions: ({prefix}) ->
     completions = []
     for tag, attributes of @completions.tags when tag.indexOf(prefix) is 0
       completions.push({word: tag, prefix})
     completions
 
-  getAllAttributeNameCompletions: ->
+  getAllAttributeNameCompletions: ({editor, cursor}) ->
     completions = []
+
     for attribute, options of @completions.attributes
       completions.push({word: attribute, prefix: ''}) if options.global
+
+    tagAttributes = @completions.tags[@getPreviousTag(editor, cursor)]?.attributes ? []
+    for attribute in tagAttributes
+      completions.push({word: attribute, prefix: ''})
+
     completions
 
-  getAttributeNameCompletionsForPrefix: (prefix) ->
+  getAttributeNameCompletions: ({editor, cursor, prefix}) ->
     completions = []
+
     for attribute, options of @completions.attributes when attribute.indexOf(prefix) is 0
       completions.push({word: attribute, prefix}) if options.global
+
+    tagAttributes = @completions.tags[@getPreviousTag(editor, cursor)]?.attributes ? []
+    for attribute in tagAttributes when attribute.indexOf(prefix) is 0
+      completions.push({word: attribute, prefix})
+
     completions
-
-  getPreviousAttribute: (editor, cursor) ->
-    line = editor.lineTextForBufferRow(cursor.getBufferRow())
-    line = line.substring(0, cursor.getBufferColumn()).trim()
-
-    # Remove everything until the opening quote
-    quoteIndex = line.length - 1
-    quoteIndex-- while line[quoteIndex] and not (line[quoteIndex] in ['"', "'"])
-    line = line.substring(0, quoteIndex)
-
-    attributePattern.exec(line)?[1]
 
   getAllAttributeValueCompletions: ({editor, cursor}) ->
     completions = []
@@ -118,7 +120,7 @@ module.exports =
       completions.push({word: option, prefix: ''})
     completions
 
-  getAttributeValueCompletionsForPrefix: ({editor, cursor, prefix}) ->
+  getAttributeValueCompletions: ({editor, cursor, prefix}) ->
     completions = []
     attribute = @completions.attributes[@getPreviousAttribute(editor, cursor)]
     for option in attribute?.attribOption ? [] when option.indexOf(prefix) is 0
@@ -130,3 +132,22 @@ module.exports =
     fs.readFile path.join(__dirname, 'completions.json'), (error, content) =>
       @completions = JSON.parse(content) unless error?
       return
+
+  getPreviousTag: (editor, cursor) ->
+    row = cursor.getBufferRow()
+    while row >= 0
+      tag = tagPattern.exec(editor.lineTextForBufferRow(row))?[1]
+      return tag if tag
+      row--
+    return
+
+  getPreviousAttribute: (editor, cursor) ->
+    line = editor.lineTextForBufferRow(cursor.getBufferRow())
+    line = line.substring(0, cursor.getBufferColumn()).trim()
+
+    # Remove everything until the opening quote
+    quoteIndex = line.length - 1
+    quoteIndex-- while line[quoteIndex] and not (line[quoteIndex] in ['"', "'"])
+    line = line.substring(0, quoteIndex)
+
+    attributePattern.exec(line)?[1]
