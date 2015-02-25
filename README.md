@@ -1,4 +1,4 @@
-# HTML Autocomplete Package [![Build Status](https://travis-ci.org/atom/autocomplete-css.svg?branch=master)](https://travis-ci.org/atom/autocomplete-css)
+# HTML Autocomplete Package [![Build Status](https://travis-ci.org/atom/autocomplete-html.svg?branch=master)](https://travis-ci.org/atom/autocomplete-html)
 
 HTML tag and attribe autocompletions in Atom. Install
 [autocomplete-plus](https://github.com/atom-community/autocomplete-plus) before
