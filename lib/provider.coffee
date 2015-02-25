@@ -90,7 +90,7 @@ module.exports =
     for attribute, options of @completions.attributes
       completions.push({word: attribute, prefix: ''}) if options.global
 
-    tagAttributes = @completions.tags[@getPreviousTag(editor, cursor)]?.attributes ? []
+    tagAttributes = @getTagAttributes(editor, cursor)
     for attribute in tagAttributes
       completions.push({word: attribute, prefix: ''})
 
@@ -102,7 +102,7 @@ module.exports =
     for attribute, options of @completions.attributes when attribute.indexOf(prefix) is 0
       completions.push({word: attribute, prefix}) if options.global
 
-    tagAttributes = @completions.tags[@getPreviousTag(editor, cursor)]?.attributes ? []
+    tagAttributes = @getTagAttributes(editor, cursor)
     for attribute in tagAttributes when attribute.indexOf(prefix) is 0
       completions.push({word: attribute, prefix})
 
@@ -110,16 +110,16 @@ module.exports =
 
   getAllAttributeValueCompletions: ({editor, cursor}) ->
     completions = []
-    attribute = @completions.attributes[@getPreviousAttribute(editor, cursor)]
-    for option in attribute?.attribOption ? []
-      completions.push({word: option, prefix: ''})
+    values = @getAttributeValues(editor, cursor)
+    for value in values
+      completions.push({word: value, prefix: ''})
     completions
 
   getAttributeValueCompletions: ({editor, cursor, prefix}) ->
     completions = []
-    attribute = @completions.attributes[@getPreviousAttribute(editor, cursor)]
-    for option in attribute?.attribOption ? [] when option.indexOf(prefix) is 0
-      completions.push({word: option, prefix})
+    values = @getAttributeValues(editor, cursor)
+    for value in values when value.indexOf(prefix) is 0
+      completions.push({word: value, prefix})
     completions
 
   loadCompletions: ->
@@ -146,3 +146,11 @@ module.exports =
     line = line.substring(0, quoteIndex)
 
     attributePattern.exec(line)?[1]
+
+  getAttributeValues: (editor, cursor) ->
+    attribute = @completions.attributes[@getPreviousAttribute(editor, cursor)]
+    attribute?.attribOption ? []
+
+  getTagAttributes: (editor, cursor) ->
+    tag = @getPreviousTag(editor, cursor)
+    @completions.tags[tag]?.attributes ? []
