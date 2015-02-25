@@ -51,8 +51,11 @@ module.exports =
     return false if trailingWhitespace.test(prefix)
 
     scopes = scope.getScopesArray()
-    scopes.indexOf('entity.other.attribute-name.html') isnt -1 or
-      scopes.indexOf('punctuation.definition.tag.end.html') isnt -1
+    return true if scopes.indexOf('entity.other.attribute-name.html') isnt -1
+
+    scopes.indexOf('meta.tag.any.html') and
+      (scopes.indexOf('punctuation.definition.tag.end.html') isnt -1 or
+        scopes.indexOf('punctuation.definition.tag.html') isnt -1)
 
   getAllTagNameCompletions: ->
     completions = []
