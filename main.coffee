@@ -15,6 +15,8 @@ module.exports =
   requestHandler: (request) ->
     if @isAttributeValueStartWithNoPrefix(request)
       @getAllAttributeValueCompletions(request)
+    else if @isAttributeValueStartWithPrefix(request)
+      @getAttributeValueCompletionsForPrefix(request)
     else if @isAttributeStartWithNoPrefix(request)
       @getAllAttributeNameCompletions()
     else if @isAttributeStartWithPrefix(request)
@@ -51,7 +53,15 @@ module.exports =
     scopes.indexOf('punctuation.definition.tag.html') isnt -1 or
       scopes.indexOf('punctuation.definition.tag.end.html') isnt -1
 
-  isAttributeValueStartWithNoPrefix: ({scope}) ->
+  isAttributeValueStartWithNoPrefix: ({scope, prefix}) ->
+    lastPrefixCharacter = prefix[prefix.length - 1]
+    return false unless lastPrefixCharacter in ['"', "'"]
+    scopes = scope.getScopesArray()
+    @hasStringScope(scopes) and @hasTagScope(scopes)
+
+  isAttributeValueStartWithPrefix: ({scope, prefix}) ->
+    lastPrefixCharacter = prefix[prefix.length - 1]
+    return false if lastPrefixCharacter in ['"', "'"]
     scopes = scope.getScopesArray()
     @hasStringScope(scopes) and @hasTagScope(scopes)
 
@@ -100,6 +110,13 @@ module.exports =
     attribute = @completions.attributes[@getPreviousAttribute(editor, cursor)]
     for option in attribute?.attribOption ? []
       completions.push({word: option, prefix: ''})
+    completions
+
+  getAttributeValueCompletionsForPrefix: ({editor, cursor, prefix}) ->
+    completions = []
+    attribute = @completions.attributes[@getPreviousAttribute(editor, cursor)]
+    for option in attribute?.attribOption ? [] when option.indexOf(prefix) is 0
+      completions.push({word: option, prefix})
     completions
 
   loadCompletions: ->

@@ -120,7 +120,7 @@ describe "HTML autocompletions", ->
     expect(completions[1].word).toBe 'contenteditable'
     expect(completions[2].word).toBe 'contextmenu'
 
-  it "autocompletes attribute names without a prefix", ->
+  it "autocompletes attribute values without a prefix", ->
     editor.setText('<div behavior=""')
     editor.setCursorBufferPosition([0, 15])
 
@@ -160,3 +160,17 @@ describe "HTML autocompletions", ->
     expect(completions[0].word).toBe 'scroll'
     expect(completions[1].word).toBe 'slide'
     expect(completions[2].word).toBe 'alternate'
+
+  it "autocompletes attribute values with a prefix", ->
+    editor.setText('<html lang="e"')
+    editor.setCursorBufferPosition([0, 13])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 6
+
+    expect(completions[0].word).toBe 'eu'
+    expect(completions[1].word).toBe 'en'
+    expect(completions[2].word).toBe 'eo'
+    expect(completions[3].word).toBe 'et'
+    expect(completions[4].word).toBe 'el'
+    expect(completions[5].word).toBe 'es'
