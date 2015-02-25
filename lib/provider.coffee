@@ -44,7 +44,6 @@ module.exports =
 
     scopes = scope.getScopesArray()
     return true if scopes.indexOf('entity.other.attribute-name.html') isnt -1
-
     return false unless @hasTagScope(scopes)
 
     scopes.indexOf('punctuation.definition.tag.html') isnt -1 or
