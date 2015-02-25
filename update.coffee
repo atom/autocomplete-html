@@ -34,6 +34,9 @@ getAttributes = (callback) ->
     if response.statusCode isnt 200
       return callback(new Error("Request for HtmlAttributes.json failed: #{response.statusCode}"))
 
+    for attribute, options of attributes
+      delete attributes[attribute] if attribute.indexOf('/') isnt -1
+
     callback(null, attributes)
 
 getTags (error, tags) ->
