@@ -34,6 +34,24 @@ describe "HTML autocompletions", ->
     editor.setCursorBufferPosition([0, 1])
     expect(getCompletions().length).toBe 0
 
+  it "returns no completions in style tags", ->
+    editor.setText """
+      <style>
+      <
+      </style>
+    """
+    editor.setCursorBufferPosition([1, 1])
+    expect(getCompletions().length).toBe 0
+
+  it "returns no completions in script tags", ->
+    editor.setText """
+      <script>
+      <
+      </script>
+    """
+    editor.setCursorBufferPosition([1, 1])
+    expect(getCompletions().length).toBe 0
+
   it "autcompletes tag names without a prefix", ->
     editor.setText('<')
     editor.setCursorBufferPosition([0, 1])

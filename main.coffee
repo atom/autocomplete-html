@@ -53,9 +53,14 @@ module.exports =
     scopes = scope.getScopesArray()
     return true if scopes.indexOf('entity.other.attribute-name.html') isnt -1
 
-    scopes.indexOf('meta.tag.any.html') and
-      (scopes.indexOf('punctuation.definition.tag.end.html') isnt -1 or
-        scopes.indexOf('punctuation.definition.tag.html') isnt -1)
+    return true if scopes.indexOf('meta.tag.any.html') isnt -1 and
+      scopes.indexOf('punctuation.definition.tag.html') isnt -1
+
+    scopes.indexOf('punctuation.definition.tag.end.html') isnt -1 and
+      (scopes.indexOf('meta.tag.other.html') isnt -1 or
+        scopes.indexOf('meta.tag.block.any.html') isnt -1 or
+        scopes.indexOf('meta.tag.inline.any.html') isnt -1 or
+        scopes.indexOf('meta.tag.structure.any.html') isnt -1)
 
   getAllTagNameCompletions: ->
     completions = []
