@@ -79,7 +79,7 @@ describe "HTML autocompletions", ->
     expect(completions[7].word).toBe 'dl'
     expect(completions[8].word).toBe 'dt'
 
-  it "autocompletions attribute names without a prefix", ->
+  it "autocompletes attribute names without a prefix", ->
     editor.setText('<div ')
     editor.setCursorBufferPosition([0, 5])
 
@@ -89,7 +89,7 @@ describe "HTML autocompletions", ->
     for completion in completions
       expect(completion.word.length).toBeGreaterThan 0
 
-  it "autocompletions attribute names with a prefix", ->
+  it "autocompletes attribute names with a prefix", ->
     editor.setText('<div c')
     editor.setCursorBufferPosition([0, 6])
 
@@ -119,3 +119,44 @@ describe "HTML autocompletions", ->
     expect(completions[0].word).toBe 'class'
     expect(completions[1].word).toBe 'contenteditable'
     expect(completions[2].word).toBe 'contextmenu'
+
+  it "autocompletes attribute names without a prefix", ->
+    editor.setText('<div behavior=""')
+    editor.setCursorBufferPosition([0, 15])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 3
+
+    expect(completions[0].word).toBe 'scroll'
+    expect(completions[1].word).toBe 'slide'
+    expect(completions[2].word).toBe 'alternate'
+
+    editor.setText('<div behavior="')
+    editor.setCursorBufferPosition([0, 15])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 3
+
+    expect(completions[0].word).toBe 'scroll'
+    expect(completions[1].word).toBe 'slide'
+    expect(completions[2].word).toBe 'alternate'
+
+    editor.setText('<div behavior=\'')
+    editor.setCursorBufferPosition([0, 15])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 3
+
+    expect(completions[0].word).toBe 'scroll'
+    expect(completions[1].word).toBe 'slide'
+    expect(completions[2].word).toBe 'alternate'
+
+    editor.setText('<div behavior=\'\'')
+    editor.setCursorBufferPosition([0, 15])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 3
+
+    expect(completions[0].word).toBe 'scroll'
+    expect(completions[1].word).toBe 'slide'
+    expect(completions[2].word).toBe 'alternate'

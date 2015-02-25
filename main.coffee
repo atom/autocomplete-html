@@ -2,6 +2,7 @@ fs = require 'fs'
 path = require 'path'
 
 trailingWhitespace = /\s$/
+attributePattern = /\s+([a-z][-a-z]*)\s*=\s*['"]/
 
 module.exports =
   selector: '.text.html'
@@ -12,7 +13,9 @@ module.exports =
   getProvider: -> providers: [this]
 
   requestHandler: (request) ->
-    if @isAttributeStartWithNoPrefix(request)
+    if @isAttributeValueStartWithNoPrefix(request)
+      @getAllAttributeValueCompletions(request)
+    else if @isAttributeStartWithNoPrefix(request)
       @getAllAttributeNameCompletions()
     else if @isAttributeStartWithPrefix(request)
       @getAttributeNameCompletionsForPrefix(request.prefix)
@@ -30,21 +33,11 @@ module.exports =
   isTagStartTagWithPrefix: ({prefix, scope}) ->
     return false unless prefix
     return false if trailingWhitespace.test(prefix)
-
-    scopes = scope.getScopesArray()
-    scopes.indexOf('meta.tag.other.html') isnt -1 or
-      scopes.indexOf('meta.tag.block.any.html') isnt -1 or
-      scopes.indexOf('meta.tag.inline.any.html') isnt -1 or
-      scopes.indexOf('meta.tag.structure.any.html') isnt -1
+    @hasTagScope(scope.getScopesArray())
 
   isAttributeStartWithNoPrefix: ({prefix, scope}) ->
     return false unless trailingWhitespace.test(prefix)
-
-    scopes = scope.getScopesArray()
-    scopes.indexOf('meta.tag.other.html') isnt -1 or
-      scopes.indexOf('meta.tag.block.any.html') isnt -1 or
-      scopes.indexOf('meta.tag.inline.any.html') isnt -1 or
-      scopes.indexOf('meta.tag.structure.any.html') isnt -1
+    @hasTagScope(scope.getScopesArray())
 
   isAttributeStartWithPrefix: ({prefix, scope}) ->
     return false unless prefix
@@ -53,14 +46,25 @@ module.exports =
     scopes = scope.getScopesArray()
     return true if scopes.indexOf('entity.other.attribute-name.html') isnt -1
 
-    return true if scopes.indexOf('meta.tag.any.html') isnt -1 and
-      scopes.indexOf('punctuation.definition.tag.html') isnt -1
+    return false unless @hasTagScope(scopes)
 
-    scopes.indexOf('punctuation.definition.tag.end.html') isnt -1 and
-      (scopes.indexOf('meta.tag.other.html') isnt -1 or
-        scopes.indexOf('meta.tag.block.any.html') isnt -1 or
-        scopes.indexOf('meta.tag.inline.any.html') isnt -1 or
-        scopes.indexOf('meta.tag.structure.any.html') isnt -1)
+    scopes.indexOf('punctuation.definition.tag.html') isnt -1 or
+      scopes.indexOf('punctuation.definition.tag.end.html') isnt -1
+
+  isAttributeValueStartWithNoPrefix: ({scope}) ->
+    scopes = scope.getScopesArray()
+    @hasStringScope(scopes) and @hasTagScope(scopes)
+
+  hasTagScope: (scopes) ->
+    scopes.indexOf('meta.tag.any.html') isnt -1 or
+      scopes.indexOf('meta.tag.other.html') isnt -1 or
+      scopes.indexOf('meta.tag.block.any.html') isnt -1 or
+      scopes.indexOf('meta.tag.inline.any.html') isnt -1 or
+      scopes.indexOf('meta.tag.structure.any.html') isnt -1
+
+  hasStringScope: (scopes) ->
+    scopes.indexOf('string.quoted.double.html') isnt -1 or
+      scopes.indexOf('string.quoted.single.html') isnt -1
 
   getAllTagNameCompletions: ->
     completions = []
@@ -84,6 +88,18 @@ module.exports =
     completions = []
     for attribute, options of @completions.attributes when attribute.indexOf(prefix) is 0
       completions.push({word: attribute, prefix}) if options.global
+    completions
+
+  getPreviousAttribute: (editor, cursor) ->
+    line = editor.lineTextForBufferRow(cursor.getBufferRow())
+    line = line.substring(0, cursor.getBufferColumn()).trim()
+    attributePattern.exec(line)?[1]
+
+  getAllAttributeValueCompletions: ({editor, cursor}) ->
+    completions = []
+    attribute = @completions.attributes[@getPreviousAttribute(editor, cursor)]
+    for option in attribute?.attribOption ? []
+      completions.push({word: option, prefix: ''})
     completions
 
   loadCompletions: ->
