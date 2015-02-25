@@ -13,9 +13,9 @@ module.exports =
 
   requestHandler: (request) ->
     if @isAttributeStartWithNoPrefix(request)
-      @getAllAttributeCompletions()
+      @getAllAttributeNameCompletions()
     else if @isAttributeStartWithPrefix(request)
-      @getAttributeCompletionsForPrefix(request.prefix)
+      @getAttributeNameCompletionsForPrefix(request.prefix)
     else if @isTagStartWithNoPrefix(request)
       @getAllTagNameCompletions()
     else if @isTagStartTagWithPrefix(request)
@@ -66,13 +66,13 @@ module.exports =
       completions.push({word: tag, prefix})
     completions
 
-  getAllAttributeCompletions: ->
+  getAllAttributeNameCompletions: ->
     completions = []
     for attribute, options of @completions.attributes
       completions.push({word: attribute, prefix: ''}) if options.global
     completions
 
-  getAttributeCompletionsForPrefix: (prefix) ->
+  getAttributeNameCompletionsForPrefix: (prefix) ->
     completions = []
     for attribute, options of @completions.attributes when attribute.indexOf(prefix) is 0
       completions.push({word: attribute, prefix}) if options.global
