@@ -3,7 +3,7 @@ path = require 'path'
 
 trailingWhitespace = /\s$/
 attributePattern = /\s+([a-z][-a-z]*)\s*=\s*$/
-tagPattern = /(?:^|\s|>)<([a-z][-a-z]*)(?:\s|$)/
+tagPattern = /<([a-z][-a-z]*)(?:\s|$)/
 
 module.exports =
   selector: '.text.html'
