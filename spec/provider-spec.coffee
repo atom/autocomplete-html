@@ -162,8 +162,21 @@ describe "HTML autocompletions", ->
     expect(completions[2].word).toBe 'alternate'
 
   it "autocompletes attribute values with a prefix", ->
-    editor.setText('<html lang="e"')
-    editor.setCursorBufferPosition([0, 13])
+    editor.setText('<html behavior="" lang="e"')
+    editor.setCursorBufferPosition([0, 25])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 6
+
+    expect(completions[0].word).toBe 'eu'
+    expect(completions[1].word).toBe 'en'
+    expect(completions[2].word).toBe 'eo'
+    expect(completions[3].word).toBe 'et'
+    expect(completions[4].word).toBe 'el'
+    expect(completions[5].word).toBe 'es'
+
+    editor.setText('<html behavior="" lang=\'e\'')
+    editor.setCursorBufferPosition([0, 25])
 
     completions = getCompletions()
     expect(completions.length).toBe 6

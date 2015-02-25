@@ -2,7 +2,7 @@ fs = require 'fs'
 path = require 'path'
 
 trailingWhitespace = /\s$/
-attributePattern = /\s+([a-z][-a-z]*)\s*=\s*['"]/
+attributePattern = /\s+([a-z][-a-z]*)\s*=\s*$/
 
 module.exports =
   selector: '.text.html'
@@ -103,6 +103,12 @@ module.exports =
   getPreviousAttribute: (editor, cursor) ->
     line = editor.lineTextForBufferRow(cursor.getBufferRow())
     line = line.substring(0, cursor.getBufferColumn()).trim()
+
+    # Remove everything until the opening quote
+    quoteIndex = line.length - 1
+    quoteIndex-- while line[quoteIndex] and not (line[quoteIndex] in ['"', "'"])
+    line = line.substring(0, quoteIndex)
+
     attributePattern.exec(line)?[1]
 
   getAllAttributeValueCompletions: ({editor, cursor}) ->
