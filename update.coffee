@@ -21,6 +21,9 @@ getTags = (callback) ->
     if response.statusCode isnt 200
       return callback(new Error("Request for HtmlTags.json failed: #{response.statusCode}"))
 
+    for tag, options of tags
+      delete options.attributes if options.attributes?.length is 0
+
     callback(null, tags)
 
 getAttributes = (callback) ->
@@ -36,6 +39,7 @@ getAttributes = (callback) ->
 
     for attribute, options of attributes
       delete attributes[attribute] if attribute.indexOf('/') isnt -1
+      delete options.attribOption if options.attribOption?.length is 0
 
     callback(null, attributes)
 
