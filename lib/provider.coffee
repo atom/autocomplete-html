@@ -85,41 +85,41 @@ module.exports =
       completions.push({word: tag, prefix})
     completions
 
-  getAllAttributeNameCompletions: ({editor, cursor}) ->
+  getAllAttributeNameCompletions: ({editor, position}) ->
     completions = []
 
     for attribute, options of @completions.attributes
       completions.push({word: attribute, prefix: ''}) if options.global
 
-    tagAttributes = @getTagAttributes(editor, cursor)
+    tagAttributes = @getTagAttributes(editor, position)
     for attribute in tagAttributes
       completions.push({word: attribute, prefix: ''})
 
     completions
 
-  getAttributeNameCompletions: ({editor, cursor, prefix}) ->
+  getAttributeNameCompletions: ({editor, position, prefix}) ->
     completions = []
 
     lowerCasePrefix = prefix.toLowerCase()
     for attribute, options of @completions.attributes when attribute.indexOf(lowerCasePrefix) is 0
       completions.push({word: attribute, prefix}) if options.global
 
-    tagAttributes = @getTagAttributes(editor, cursor)
+    tagAttributes = @getTagAttributes(editor, position)
     for attribute in tagAttributes when attribute.indexOf(prefix) is 0
       completions.push({word: attribute, prefix})
 
     completions
 
-  getAllAttributeValueCompletions: ({editor, cursor}) ->
+  getAllAttributeValueCompletions: ({editor, position}) ->
     completions = []
-    values = @getAttributeValues(editor, cursor)
+    values = @getAttributeValues(editor, position)
     for value in values
       completions.push({word: value, prefix: ''})
     completions
 
-  getAttributeValueCompletions: ({editor, cursor, prefix}) ->
+  getAttributeValueCompletions: ({editor, position, prefix}) ->
     completions = []
-    values = @getAttributeValues(editor, cursor)
+    values = @getAttributeValues(editor, position)
     lowerCasePrefix = prefix.toLowerCase()
     for value in values when value.indexOf(lowerCasePrefix) is 0
       completions.push({word: value, prefix})
@@ -131,17 +131,16 @@ module.exports =
       @completions = JSON.parse(content) unless error?
       return
 
-  getPreviousTag: (editor, cursor) ->
-    row = cursor.getBufferRow()
+  getPreviousTag: (editor, position) ->
+    {row} = position
     while row >= 0
       tag = tagPattern.exec(editor.lineTextForBufferRow(row))?[1]
       return tag if tag
       row--
     return
 
-  getPreviousAttribute: (editor, cursor) ->
-    line = editor.lineTextForBufferRow(cursor.getBufferRow())
-    line = line.substring(0, cursor.getBufferColumn()).trim()
+  getPreviousAttribute: (editor, position) ->
+    line = editor.getTextInRange([[position.row, 0], position]).trim()
 
     # Remove everything until the opening quote
     quoteIndex = line.length - 1
@@ -150,10 +149,10 @@ module.exports =
 
     attributePattern.exec(line)?[1]
 
-  getAttributeValues: (editor, cursor) ->
-    attribute = @completions.attributes[@getPreviousAttribute(editor, cursor)]
+  getAttributeValues: (editor, position) ->
+    attribute = @completions.attributes[@getPreviousAttribute(editor, position)]
     attribute?.attribOption ? []
 
-  getTagAttributes: (editor, cursor) ->
-    tag = @getPreviousTag(editor, cursor)
+  getTagAttributes: (editor, position) ->
+    tag = @getPreviousTag(editor, position)
     @completions.tags[tag]?.attributes ? []
