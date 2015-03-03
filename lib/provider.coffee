@@ -2,8 +2,8 @@ fs = require 'fs'
 path = require 'path'
 
 trailingWhitespace = /\s$/
-attributePattern = /\s+([a-z][-a-z]*)\s*=\s*$/
-tagPattern = /<([a-z][-a-z]*)(?:\s|$)/
+attributePattern = /\s+([a-zA-Z][-a-zA-Z]*)\s*=\s*$/
+tagPattern = /<([a-zA-Z][-a-zA-Z]*)(?:\s|$)/
 
 module.exports =
   selector: '.text.html'
@@ -80,7 +80,8 @@ module.exports =
 
   getTagNameCompletions: ({prefix}) ->
     completions = []
-    for tag, attributes of @completions.tags when tag.indexOf(prefix) is 0
+    lowerCasePrefix = prefix.toLowerCase()
+    for tag, attributes of @completions.tags when tag.indexOf(lowerCasePrefix) is 0
       completions.push({word: tag, prefix})
     completions
 
@@ -99,7 +100,8 @@ module.exports =
   getAttributeNameCompletions: ({editor, cursor, prefix}) ->
     completions = []
 
-    for attribute, options of @completions.attributes when attribute.indexOf(prefix) is 0
+    lowerCasePrefix = prefix.toLowerCase()
+    for attribute, options of @completions.attributes when attribute.indexOf(lowerCasePrefix) is 0
       completions.push({word: attribute, prefix}) if options.global
 
     tagAttributes = @getTagAttributes(editor, cursor)
@@ -118,7 +120,8 @@ module.exports =
   getAttributeValueCompletions: ({editor, cursor, prefix}) ->
     completions = []
     values = @getAttributeValues(editor, cursor)
-    for value in values when value.indexOf(prefix) is 0
+    lowerCasePrefix = prefix.toLowerCase()
+    for value in values when value.indexOf(lowerCasePrefix) is 0
       completions.push({word: value, prefix})
     completions
 

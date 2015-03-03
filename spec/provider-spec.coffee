@@ -70,6 +70,24 @@ describe "HTML autocompletions", ->
     expect(completions.length).toBe 9
 
     expect(completions[0].word).toBe 'datalist'
+    expect(completions[0].prefix).toBe 'd'
+    expect(completions[1].word).toBe 'dd'
+    expect(completions[2].word).toBe 'del'
+    expect(completions[3].word).toBe 'details'
+    expect(completions[4].word).toBe 'dfn'
+    expect(completions[5].word).toBe 'dialog'
+    expect(completions[6].word).toBe 'div'
+    expect(completions[7].word).toBe 'dl'
+    expect(completions[8].word).toBe 'dt'
+
+    editor.setText('<D')
+    editor.setCursorBufferPosition([0, 2])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 9
+
+    expect(completions[0].word).toBe 'datalist'
+    expect(completions[0].prefix).toBe 'D'
     expect(completions[1].word).toBe 'dd'
     expect(completions[2].word).toBe 'del'
     expect(completions[3].word).toBe 'details'
@@ -106,6 +124,18 @@ describe "HTML autocompletions", ->
     expect(completions.length).toBe 3
 
     expect(completions[0].word).toBe 'class'
+    expect(completions[0].prefix).toBe 'c'
+    expect(completions[1].word).toBe 'contenteditable'
+    expect(completions[2].word).toBe 'contextmenu'
+
+    editor.setText('<div C')
+    editor.setCursorBufferPosition([0, 6])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 3
+
+    expect(completions[0].word).toBe 'class'
+    expect(completions[0].prefix).toBe 'C'
     expect(completions[1].word).toBe 'contenteditable'
     expect(completions[2].word).toBe 'contextmenu'
 
@@ -187,6 +217,21 @@ describe "HTML autocompletions", ->
     expect(completions.length).toBe 6
 
     expect(completions[0].word).toBe 'eu'
+    expect(completions[0].prefix).toBe 'e'
+    expect(completions[1].word).toBe 'en'
+    expect(completions[2].word).toBe 'eo'
+    expect(completions[3].word).toBe 'et'
+    expect(completions[4].word).toBe 'el'
+    expect(completions[5].word).toBe 'es'
+
+    editor.setText('<html behavior="" lang="E"')
+    editor.setCursorBufferPosition([0, 25])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 6
+
+    expect(completions[0].word).toBe 'eu'
+    expect(completions[0].prefix).toBe 'E'
     expect(completions[1].word).toBe 'en'
     expect(completions[2].word).toBe 'eo'
     expect(completions[3].word).toBe 'et'
