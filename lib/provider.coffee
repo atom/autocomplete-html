@@ -105,7 +105,7 @@ module.exports =
       completions.push({word: attribute, prefix}) if options.global
 
     tagAttributes = @getTagAttributes(editor, position)
-    for attribute in tagAttributes when attribute.indexOf(prefix) is 0
+    for attribute in tagAttributes when attribute.indexOf(lowerCasePrefix) is 0
       completions.push({word: attribute, prefix})
 
     completions

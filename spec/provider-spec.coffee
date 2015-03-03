@@ -168,6 +168,15 @@ describe "HTML autocompletions", ->
     expect(completions[0].word).toBe 'dir'
     expect(completions[1].word).toBe 'direction'
 
+    editor.setText('<marquee dI')
+    editor.setCursorBufferPosition([0, 12])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 2
+
+    expect(completions[0].word).toBe 'dir'
+    expect(completions[1].word).toBe 'direction'
+
   it "autocompletes attribute values without a prefix", ->
     editor.setText('<div behavior=""')
     editor.setCursorBufferPosition([0, 15])
