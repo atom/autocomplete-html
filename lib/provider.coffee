@@ -9,7 +9,7 @@ module.exports =
   selector: '.text.html'
   id: 'autocomplete-html-htmlprovider'
 
-  requestHandler: (request) ->
+  getSuggestions: (request) ->
     if @isAttributeValueStartWithNoPrefix(request)
       @getAllAttributeValueCompletions(request)
     else if @isAttributeValueStartWithPrefix(request)
@@ -25,40 +25,40 @@ module.exports =
     else
       []
 
-  isTagStartWithNoPrefix: ({prefix, scope}) ->
-    scopes = scope.getScopesArray()
+  isTagStartWithNoPrefix: ({prefix, scopeDescriptor}) ->
+    scopes = scopeDescriptor.getScopesArray()
     prefix is '<' and scopes.length is 1 and scopes[0] is 'text.html.basic'
 
-  isTagStartTagWithPrefix: ({prefix, scope}) ->
+  isTagStartTagWithPrefix: ({prefix, scopeDescriptor}) ->
     return false unless prefix
     return false if trailingWhitespace.test(prefix)
-    @hasTagScope(scope.getScopesArray())
+    @hasTagScope(scopeDescriptor.getScopesArray())
 
-  isAttributeStartWithNoPrefix: ({prefix, scope}) ->
+  isAttributeStartWithNoPrefix: ({prefix, scopeDescriptor}) ->
     return false unless trailingWhitespace.test(prefix)
-    @hasTagScope(scope.getScopesArray())
+    @hasTagScope(scopeDescriptor.getScopesArray())
 
-  isAttributeStartWithPrefix: ({prefix, scope}) ->
+  isAttributeStartWithPrefix: ({prefix, scopeDescriptor}) ->
     return false unless prefix
     return false if trailingWhitespace.test(prefix)
 
-    scopes = scope.getScopesArray()
+    scopes = scopeDescriptor.getScopesArray()
     return true if scopes.indexOf('entity.other.attribute-name.html') isnt -1
     return false unless @hasTagScope(scopes)
 
     scopes.indexOf('punctuation.definition.tag.html') isnt -1 or
       scopes.indexOf('punctuation.definition.tag.end.html') isnt -1
 
-  isAttributeValueStartWithNoPrefix: ({scope, prefix}) ->
+  isAttributeValueStartWithNoPrefix: ({scopeDescriptor, prefix}) ->
     lastPrefixCharacter = prefix[prefix.length - 1]
     return false unless lastPrefixCharacter in ['"', "'"]
-    scopes = scope.getScopesArray()
+    scopes = scopeDescriptor.getScopesArray()
     @hasStringScope(scopes) and @hasTagScope(scopes)
 
-  isAttributeValueStartWithPrefix: ({scope, prefix}) ->
+  isAttributeValueStartWithPrefix: ({scopeDescriptor, prefix}) ->
     lastPrefixCharacter = prefix[prefix.length - 1]
     return false if lastPrefixCharacter in ['"', "'"]
-    scopes = scope.getScopesArray()
+    scopes = scopeDescriptor.getScopesArray()
     @hasStringScope(scopes) and @hasTagScope(scopes)
 
   hasTagScope: (scopes) ->
@@ -85,41 +85,41 @@ module.exports =
       completions.push({word: tag, prefix})
     completions
 
-  getAllAttributeNameCompletions: ({editor, position}) ->
+  getAllAttributeNameCompletions: ({editor, bufferPosition}) ->
     completions = []
 
     for attribute, options of @completions.attributes
       completions.push({word: attribute, prefix: ''}) if options.global
 
-    tagAttributes = @getTagAttributes(editor, position)
+    tagAttributes = @getTagAttributes(editor, bufferPosition)
     for attribute in tagAttributes
       completions.push({word: attribute, prefix: ''})
 
     completions
 
-  getAttributeNameCompletions: ({editor, position, prefix}) ->
+  getAttributeNameCompletions: ({editor, bufferPosition, prefix}) ->
     completions = []
 
     lowerCasePrefix = prefix.toLowerCase()
     for attribute, options of @completions.attributes when attribute.indexOf(lowerCasePrefix) is 0
       completions.push({word: attribute, prefix}) if options.global
 
-    tagAttributes = @getTagAttributes(editor, position)
+    tagAttributes = @getTagAttributes(editor, bufferPosition)
     for attribute in tagAttributes when attribute.indexOf(lowerCasePrefix) is 0
       completions.push({word: attribute, prefix})
 
     completions
 
-  getAllAttributeValueCompletions: ({editor, position}) ->
+  getAllAttributeValueCompletions: ({editor, bufferPosition}) ->
     completions = []
-    values = @getAttributeValues(editor, position)
+    values = @getAttributeValues(editor, bufferPosition)
     for value in values
       completions.push({word: value, prefix: ''})
     completions
 
-  getAttributeValueCompletions: ({editor, position, prefix}) ->
+  getAttributeValueCompletions: ({editor, bufferPosition, prefix}) ->
     completions = []
-    values = @getAttributeValues(editor, position)
+    values = @getAttributeValues(editor, bufferPosition)
     lowerCasePrefix = prefix.toLowerCase()
     for value in values when value.indexOf(lowerCasePrefix) is 0
       completions.push({word: value, prefix})
@@ -131,16 +131,16 @@ module.exports =
       @completions = JSON.parse(content) unless error?
       return
 
-  getPreviousTag: (editor, position) ->
-    {row} = position
+  getPreviousTag: (editor, bufferPosition) ->
+    {row} = bufferPosition
     while row >= 0
       tag = tagPattern.exec(editor.lineTextForBufferRow(row))?[1]
       return tag if tag
       row--
     return
 
-  getPreviousAttribute: (editor, position) ->
-    line = editor.getTextInRange([[position.row, 0], position]).trim()
+  getPreviousAttribute: (editor, bufferPosition) ->
+    line = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition]).trim()
 
     # Remove everything until the opening quote
     quoteIndex = line.length - 1
@@ -149,10 +149,10 @@ module.exports =
 
     attributePattern.exec(line)?[1]
 
-  getAttributeValues: (editor, position) ->
-    attribute = @completions.attributes[@getPreviousAttribute(editor, position)]
+  getAttributeValues: (editor, bufferPosition) ->
+    attribute = @completions.attributes[@getPreviousAttribute(editor, bufferPosition)]
     attribute?.attribOption ? []
 
-  getTagAttributes: (editor, position) ->
-    tag = @getPreviousTag(editor, position)
+  getTagAttributes: (editor, bufferPosition) ->
+    tag = @getPreviousTag(editor, bufferPosition)
     @completions.tags[tag]?.attributes ? []
