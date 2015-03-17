@@ -60,7 +60,7 @@ describe "HTML autocompletions", ->
     expect(completions.length).toBe 112
 
     for completion in completions
-      expect(completion.word.length).toBeGreaterThan 0
+      expect(completion.text.length).toBeGreaterThan 0
 
   it "autocompletes tag names with a prefix", ->
     editor.setText('<d')
@@ -69,16 +69,16 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 9
 
-    expect(completions[0].word).toBe 'datalist'
-    expect(completions[0].prefix).toBe 'd'
-    expect(completions[1].word).toBe 'dd'
-    expect(completions[2].word).toBe 'del'
-    expect(completions[3].word).toBe 'details'
-    expect(completions[4].word).toBe 'dfn'
-    expect(completions[5].word).toBe 'dialog'
-    expect(completions[6].word).toBe 'div'
-    expect(completions[7].word).toBe 'dl'
-    expect(completions[8].word).toBe 'dt'
+    expect(completions[0].text).toBe 'datalist'
+    expect(completions[0].replacementPrefix).toBe 'd'
+    expect(completions[1].text).toBe 'dd'
+    expect(completions[2].text).toBe 'del'
+    expect(completions[3].text).toBe 'details'
+    expect(completions[4].text).toBe 'dfn'
+    expect(completions[5].text).toBe 'dialog'
+    expect(completions[6].text).toBe 'div'
+    expect(completions[7].text).toBe 'dl'
+    expect(completions[8].text).toBe 'dt'
 
     editor.setText('<D')
     editor.setCursorBufferPosition([0, 2])
@@ -86,16 +86,16 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 9
 
-    expect(completions[0].word).toBe 'datalist'
-    expect(completions[0].prefix).toBe 'D'
-    expect(completions[1].word).toBe 'dd'
-    expect(completions[2].word).toBe 'del'
-    expect(completions[3].word).toBe 'details'
-    expect(completions[4].word).toBe 'dfn'
-    expect(completions[5].word).toBe 'dialog'
-    expect(completions[6].word).toBe 'div'
-    expect(completions[7].word).toBe 'dl'
-    expect(completions[8].word).toBe 'dt'
+    expect(completions[0].text).toBe 'datalist'
+    expect(completions[0].replacementPrefix).toBe 'D'
+    expect(completions[1].text).toBe 'dd'
+    expect(completions[2].text).toBe 'del'
+    expect(completions[3].text).toBe 'details'
+    expect(completions[4].text).toBe 'dfn'
+    expect(completions[5].text).toBe 'dialog'
+    expect(completions[6].text).toBe 'div'
+    expect(completions[7].text).toBe 'dl'
+    expect(completions[8].text).toBe 'dt'
 
   it "autocompletes attribute names without a prefix", ->
     editor.setText('<div ')
@@ -105,7 +105,7 @@ describe "HTML autocompletions", ->
     expect(completions.length).toBe 69
 
     for completion in completions
-      expect(completion.word.length).toBeGreaterThan 0
+      expect(completion.text.length).toBeGreaterThan 0
 
     editor.setText('<marquee ')
     editor.setCursorBufferPosition([0, 9])
@@ -114,7 +114,7 @@ describe "HTML autocompletions", ->
     expect(completions.length).toBe 81
 
     for completion in completions
-      expect(completion.word.length).toBeGreaterThan 0
+      expect(completion.text.length).toBeGreaterThan 0
 
   it "autocompletes attribute names with a prefix", ->
     editor.setText('<div c')
@@ -123,10 +123,10 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    expect(completions[0].word).toBe 'class'
-    expect(completions[0].prefix).toBe 'c'
-    expect(completions[1].word).toBe 'contenteditable'
-    expect(completions[2].word).toBe 'contextmenu'
+    expect(completions[0].text).toBe 'class'
+    expect(completions[0].replacementPrefix).toBe 'c'
+    expect(completions[1].text).toBe 'contenteditable'
+    expect(completions[2].text).toBe 'contextmenu'
 
     editor.setText('<div C')
     editor.setCursorBufferPosition([0, 6])
@@ -134,10 +134,10 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    expect(completions[0].word).toBe 'class'
-    expect(completions[0].prefix).toBe 'C'
-    expect(completions[1].word).toBe 'contenteditable'
-    expect(completions[2].word).toBe 'contextmenu'
+    expect(completions[0].text).toBe 'class'
+    expect(completions[0].replacementPrefix).toBe 'C'
+    expect(completions[1].text).toBe 'contenteditable'
+    expect(completions[2].text).toBe 'contextmenu'
 
     editor.setText('<div c>')
     editor.setCursorBufferPosition([0, 6])
@@ -145,9 +145,9 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    expect(completions[0].word).toBe 'class'
-    expect(completions[1].word).toBe 'contenteditable'
-    expect(completions[2].word).toBe 'contextmenu'
+    expect(completions[0].text).toBe 'class'
+    expect(completions[1].text).toBe 'contenteditable'
+    expect(completions[2].text).toBe 'contextmenu'
 
     editor.setText('<div c></div>')
     editor.setCursorBufferPosition([0, 6])
@@ -155,9 +155,9 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    expect(completions[0].word).toBe 'class'
-    expect(completions[1].word).toBe 'contenteditable'
-    expect(completions[2].word).toBe 'contextmenu'
+    expect(completions[0].text).toBe 'class'
+    expect(completions[1].text).toBe 'contenteditable'
+    expect(completions[2].text).toBe 'contextmenu'
 
     editor.setText('<marquee di')
     editor.setCursorBufferPosition([0, 12])
@@ -165,8 +165,8 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 2
 
-    expect(completions[0].word).toBe 'dir'
-    expect(completions[1].word).toBe 'direction'
+    expect(completions[0].text).toBe 'dir'
+    expect(completions[1].text).toBe 'direction'
 
     editor.setText('<marquee dI')
     editor.setCursorBufferPosition([0, 12])
@@ -174,8 +174,8 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 2
 
-    expect(completions[0].word).toBe 'dir'
-    expect(completions[1].word).toBe 'direction'
+    expect(completions[0].text).toBe 'dir'
+    expect(completions[1].text).toBe 'direction'
 
   it "autocompletes attribute values without a prefix", ->
     editor.setText('<div behavior=""')
@@ -184,9 +184,9 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    expect(completions[0].word).toBe 'scroll'
-    expect(completions[1].word).toBe 'slide'
-    expect(completions[2].word).toBe 'alternate'
+    expect(completions[0].text).toBe 'scroll'
+    expect(completions[1].text).toBe 'slide'
+    expect(completions[2].text).toBe 'alternate'
 
     editor.setText('<div behavior="')
     editor.setCursorBufferPosition([0, 15])
@@ -194,9 +194,9 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    expect(completions[0].word).toBe 'scroll'
-    expect(completions[1].word).toBe 'slide'
-    expect(completions[2].word).toBe 'alternate'
+    expect(completions[0].text).toBe 'scroll'
+    expect(completions[1].text).toBe 'slide'
+    expect(completions[2].text).toBe 'alternate'
 
     editor.setText('<div behavior=\'')
     editor.setCursorBufferPosition([0, 15])
@@ -204,9 +204,9 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    expect(completions[0].word).toBe 'scroll'
-    expect(completions[1].word).toBe 'slide'
-    expect(completions[2].word).toBe 'alternate'
+    expect(completions[0].text).toBe 'scroll'
+    expect(completions[1].text).toBe 'slide'
+    expect(completions[2].text).toBe 'alternate'
 
     editor.setText('<div behavior=\'\'')
     editor.setCursorBufferPosition([0, 15])
@@ -214,9 +214,9 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    expect(completions[0].word).toBe 'scroll'
-    expect(completions[1].word).toBe 'slide'
-    expect(completions[2].word).toBe 'alternate'
+    expect(completions[0].text).toBe 'scroll'
+    expect(completions[1].text).toBe 'slide'
+    expect(completions[2].text).toBe 'alternate'
 
   it "autocompletes attribute values with a prefix", ->
     editor.setText('<html behavior="" lang="e"')
@@ -225,13 +225,13 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 6
 
-    expect(completions[0].word).toBe 'eu'
-    expect(completions[0].prefix).toBe 'e'
-    expect(completions[1].word).toBe 'en'
-    expect(completions[2].word).toBe 'eo'
-    expect(completions[3].word).toBe 'et'
-    expect(completions[4].word).toBe 'el'
-    expect(completions[5].word).toBe 'es'
+    expect(completions[0].text).toBe 'eu'
+    expect(completions[0].replacementPrefix).toBe 'e'
+    expect(completions[1].text).toBe 'en'
+    expect(completions[2].text).toBe 'eo'
+    expect(completions[3].text).toBe 'et'
+    expect(completions[4].text).toBe 'el'
+    expect(completions[5].text).toBe 'es'
 
     editor.setText('<html behavior="" lang="E"')
     editor.setCursorBufferPosition([0, 25])
@@ -239,13 +239,13 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 6
 
-    expect(completions[0].word).toBe 'eu'
-    expect(completions[0].prefix).toBe 'E'
-    expect(completions[1].word).toBe 'en'
-    expect(completions[2].word).toBe 'eo'
-    expect(completions[3].word).toBe 'et'
-    expect(completions[4].word).toBe 'el'
-    expect(completions[5].word).toBe 'es'
+    expect(completions[0].text).toBe 'eu'
+    expect(completions[0].replacementPrefix).toBe 'E'
+    expect(completions[1].text).toBe 'en'
+    expect(completions[2].text).toBe 'eo'
+    expect(completions[3].text).toBe 'et'
+    expect(completions[4].text).toBe 'el'
+    expect(completions[5].text).toBe 'es'
 
     editor.setText('<html behavior="" lang=\'e\'')
     editor.setCursorBufferPosition([0, 25])
@@ -253,9 +253,9 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 6
 
-    expect(completions[0].word).toBe 'eu'
-    expect(completions[1].word).toBe 'en'
-    expect(completions[2].word).toBe 'eo'
-    expect(completions[3].word).toBe 'et'
-    expect(completions[4].word).toBe 'el'
-    expect(completions[5].word).toBe 'es'
+    expect(completions[0].text).toBe 'eu'
+    expect(completions[1].text).toBe 'en'
+    expect(completions[2].text).toBe 'eo'
+    expect(completions[3].text).toBe 'et'
+    expect(completions[4].text).toBe 'el'
+    expect(completions[5].text).toBe 'es'
