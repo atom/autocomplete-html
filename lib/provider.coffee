@@ -87,9 +87,10 @@ module.exports =
   getAllAttributeNameCompletions: ({editor, bufferPosition}) ->
     completions = []
 
-    tagAttributes = @getTagAttributes(editor, bufferPosition)
+    tag = @getPreviousTag(editor, bufferPosition)
+    tagAttributes = @getTagAttributes(tag)
     for attribute in tagAttributes
-      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute', rightLabel: 'Tag specific'})
+      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute', rightLabel: "<#{tag}>"})
 
     for attribute, options of @completions.attributes
       completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute'}) if options.global
@@ -100,9 +101,10 @@ module.exports =
     completions = []
     lowerCasePrefix = prefix.toLowerCase()
 
-    tagAttributes = @getTagAttributes(editor, bufferPosition)
+    tag = @getPreviousTag(editor, bufferPosition)
+    tagAttributes = @getTagAttributes(tag)
     for attribute in tagAttributes when attribute.indexOf(lowerCasePrefix) is 0
-      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute', rightLabel: "Tag specific"})
+      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute', rightLabel: "<#{tag}>"})
 
     for attribute, options of @completions.attributes when attribute.indexOf(lowerCasePrefix) is 0
       completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute'}) if options.global
@@ -152,6 +154,5 @@ module.exports =
     attribute = @completions.attributes[@getPreviousAttribute(editor, bufferPosition)]
     attribute?.attribOption ? []
 
-  getTagAttributes: (editor, bufferPosition) ->
-    tag = @getPreviousTag(editor, bufferPosition)
+  getTagAttributes: (tag) ->
     @completions.tags[tag]?.attributes ? []

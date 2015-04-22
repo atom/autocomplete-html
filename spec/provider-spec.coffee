@@ -115,6 +115,7 @@ describe "HTML autocompletions", ->
 
     completions = getCompletions()
     expect(completions.length).toBe 81
+    expect(completions[0].rightLabel).toBe '<marquee>'
 
     for completion in completions
       expect(completion.snippet.length).toBeGreaterThan 0
@@ -128,7 +129,7 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    expect(completions[0].snippet).toBe 'class="$0"$1'
+    expect(completions[0].snippet).toBe 'class="$1"$0'
     expect(completions[0].displayText).toBe 'class'
     expect(completions[0].type).toBe 'attribute'
     expect(completions[1].displayText).toBe 'contenteditable'
