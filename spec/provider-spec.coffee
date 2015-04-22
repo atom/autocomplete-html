@@ -265,3 +265,15 @@ describe "HTML autocompletions", ->
     expect(completions[3].text).toBe 'et'
     expect(completions[4].text).toBe 'el'
     expect(completions[5].text).toBe 'es'
+
+  it "triggers autocomplete when an attibute has been inserted", ->
+    spyOn(atom.commands, 'dispatch')
+    suggestion = {type: 'attribute', text: 'whatever'}
+    provider.onDidInsertSuggestion({editor, suggestion})
+
+    advanceClock 1
+    expect(atom.commands.dispatch).toHaveBeenCalled()
+
+    args = atom.commands.dispatch.mostRecentCall.args
+    expect(args[0].tagName.toLowerCase()).toBe 'atom-text-editor'
+    expect(args[1]).toBe 'autocomplete-plus:activate'

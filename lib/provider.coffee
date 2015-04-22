@@ -24,6 +24,12 @@ module.exports =
     else
       []
 
+  onDidInsertSuggestion: ({editor, suggestion}) ->
+    setTimeout(@triggerAutocomplete.bind(this, editor), 1) if suggestion.type is 'attribute'
+
+  triggerAutocomplete: (editor) ->
+    atom.commands.dispatch(atom.views.getView(editor), 'autocomplete-plus:activate')
+
   isTagStartWithNoPrefix: ({prefix, scopeDescriptor}) ->
     scopes = scopeDescriptor.getScopesArray()
     prefix is '<' and scopes.length is 1 and scopes[0] is 'text.html.basic'
