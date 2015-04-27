@@ -24,6 +24,12 @@ module.exports =
     else
       []
 
+  onDidInsertSuggestion: ({editor, suggestion}) ->
+    setTimeout(@triggerAutocomplete.bind(this, editor), 1) if suggestion.type is 'attribute'
+
+  triggerAutocomplete: (editor) ->
+    atom.commands.dispatch(atom.views.getView(editor), 'autocomplete-plus:activate')
+
   isTagStartWithNoPrefix: ({prefix, scopeDescriptor}) ->
     scopes = scopeDescriptor.getScopesArray()
     prefix is '<' and scopes.length is 1 and scopes[0] is 'text.html.basic'
@@ -74,38 +80,40 @@ module.exports =
   getAllTagNameCompletions: ->
     completions = []
     for tag, attributes of @completions.tags
-      completions.push({text: tag, replacementPrefix: ''})
+      completions.push({text: tag, type: 'tag'})
     completions
 
   getTagNameCompletions: ({prefix}) ->
     completions = []
     lowerCasePrefix = prefix.toLowerCase()
     for tag, attributes of @completions.tags when tag.indexOf(lowerCasePrefix) is 0
-      completions.push({text: tag, replacementPrefix: prefix})
+      completions.push({text: tag, type: 'tag'})
     completions
 
   getAllAttributeNameCompletions: ({editor, bufferPosition}) ->
     completions = []
 
-    for attribute, options of @completions.attributes
-      completions.push({text: attribute, replacementPrefix: ''}) if options.global
-
-    tagAttributes = @getTagAttributes(editor, bufferPosition)
+    tag = @getPreviousTag(editor, bufferPosition)
+    tagAttributes = @getTagAttributes(tag)
     for attribute in tagAttributes
-      completions.push({text: attribute, replacementPrefix: ''})
+      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute', rightLabel: "<#{tag}>"})
+
+    for attribute, options of @completions.attributes
+      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute'}) if options.global
 
     completions
 
   getAttributeNameCompletions: ({editor, bufferPosition, prefix}) ->
     completions = []
-
     lowerCasePrefix = prefix.toLowerCase()
-    for attribute, options of @completions.attributes when attribute.indexOf(lowerCasePrefix) is 0
-      completions.push({text: attribute, replacementPrefix: prefix}) if options.global
 
-    tagAttributes = @getTagAttributes(editor, bufferPosition)
+    tag = @getPreviousTag(editor, bufferPosition)
+    tagAttributes = @getTagAttributes(tag)
     for attribute in tagAttributes when attribute.indexOf(lowerCasePrefix) is 0
-      completions.push({text: attribute, replacementPrefix: prefix})
+      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute', rightLabel: "<#{tag}>"})
+
+    for attribute, options of @completions.attributes when attribute.indexOf(lowerCasePrefix) is 0
+      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute'}) if options.global
 
     completions
 
@@ -113,7 +121,7 @@ module.exports =
     completions = []
     values = @getAttributeValues(editor, bufferPosition)
     for value in values
-      completions.push({text: value, replacementPrefix: ''})
+      completions.push({text: value, type: 'value'})
     completions
 
   getAttributeValueCompletions: ({editor, bufferPosition, prefix}) ->
@@ -121,7 +129,7 @@ module.exports =
     values = @getAttributeValues(editor, bufferPosition)
     lowerCasePrefix = prefix.toLowerCase()
     for value in values when value.indexOf(lowerCasePrefix) is 0
-      completions.push({text: value, replacementPrefix: prefix})
+      completions.push({text: value, type: 'value'})
     completions
 
   loadCompletions: ->
@@ -152,6 +160,5 @@ module.exports =
     attribute = @completions.attributes[@getPreviousAttribute(editor, bufferPosition)]
     attribute?.attribOption ? []
 
-  getTagAttributes: (editor, bufferPosition) ->
-    tag = @getPreviousTag(editor, bufferPosition)
+  getTagAttributes: (tag) ->
     @completions.tags[tag]?.attributes ? []
