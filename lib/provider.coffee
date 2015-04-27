@@ -32,7 +32,12 @@ module.exports =
 
   isTagStartWithNoPrefix: ({prefix, scopeDescriptor}) ->
     scopes = scopeDescriptor.getScopesArray()
-    prefix is '<' and scopes.length is 1 and scopes[0] is 'text.html.basic'
+    if prefix is '<' and scopes.length is 1
+      scopes[0] is 'text.html.basic'
+    if prefix is '<' and scopes.length is 2
+      scopes[0] is 'text.html.basic' and scopes[1] is 'meta.scope.outside-tag.html'
+    else
+      false
 
   isTagStartTagWithPrefix: ({prefix, scopeDescriptor}) ->
     return false unless prefix
@@ -96,10 +101,10 @@ module.exports =
     tag = @getPreviousTag(editor, bufferPosition)
     tagAttributes = @getTagAttributes(tag)
     for attribute in tagAttributes
-      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute', rightLabel: "<#{tag}>"})
+      completions.push(@buildAttributeCompletion(attribute, tag))
 
     for attribute, options of @completions.attributes
-      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute'}) if options.global
+      completions.push(@buildAttributeCompletion(attribute)) if options.global
 
     completions
 
@@ -110,12 +115,27 @@ module.exports =
     tag = @getPreviousTag(editor, bufferPosition)
     tagAttributes = @getTagAttributes(tag)
     for attribute in tagAttributes when attribute.indexOf(lowerCasePrefix) is 0
-      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute', rightLabel: "<#{tag}>"})
+      completions.push(@buildAttributeCompletion(attribute, tag))
 
     for attribute, options of @completions.attributes when attribute.indexOf(lowerCasePrefix) is 0
-      completions.push({snippet: "#{attribute}=\"$1\"$0", displayText: attribute, type: 'attribute'}) if options.global
+      completions.push(@buildAttributeCompletion(attribute)) if options.global
 
     completions
+
+  buildAttributeCompletion: (attribute, tag) ->
+    if tag?
+      snippet: "#{attribute}=\"$1\"$0"
+      displayText: attribute
+      type: 'attribute'
+      rightLabel: "<#{tag}>"
+      description: "#{attribute} attribute local to <#{tag}> tags"
+      descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
+    else
+      snippet: "#{attribute}=\"$1\"$0"
+      displayText: attribute
+      type: 'attribute'
+      description: "Global #{attribute} attribute"
+      descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
 
   getAllAttributeValueCompletions: ({editor, bufferPosition}) ->
     completions = []
@@ -162,3 +182,12 @@ module.exports =
 
   getTagAttributes: (tag) ->
     @completions.tags[tag]?.attributes ? []
+
+  getTagDocsURL: (tag) ->
+    "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/#{tag}"
+
+  getLocalAttributeDocsURL: (attribute, tag) ->
+    "#{@getTagDocsURL(tag)}#attr-#{attribute}"
+
+  getGlobalAttributeDocsURL: (attribute) ->
+    "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"

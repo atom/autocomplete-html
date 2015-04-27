@@ -104,10 +104,12 @@ describe "HTML autocompletions", ->
 
     completions = getCompletions()
     expect(completions.length).toBe 69
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Global_attributes/accesskey')).toBe true
 
     for completion in completions
       expect(completion.snippet.length).toBeGreaterThan 0
       expect(completion.displayText.length).toBeGreaterThan 0
+      expect(completion.description.length).toBeGreaterThan 0
       expect(completion.type).toBe 'attribute'
 
     editor.setText('<marquee ')
@@ -116,10 +118,12 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 81
     expect(completions[0].rightLabel).toBe '<marquee>'
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/marquee#attr-align')).toBe true
 
     for completion in completions
       expect(completion.snippet.length).toBeGreaterThan 0
       expect(completion.displayText.length).toBeGreaterThan 0
+      expect(completion.description.length).toBeGreaterThan 0
       expect(completion.type).toBe 'attribute'
 
   it "autocompletes attribute names with a prefix", ->
