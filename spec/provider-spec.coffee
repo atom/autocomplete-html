@@ -58,9 +58,11 @@ describe "HTML autocompletions", ->
 
     completions = getCompletions()
     expect(completions.length).toBe 112
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/a')).toBe true
 
     for completion in completions
       expect(completion.text.length).toBeGreaterThan 0
+      expect(completion.description.length).toBeGreaterThan 0
       expect(completion.type).toBe 'tag'
 
   it "autocompletes tag names with a prefix", ->
@@ -72,6 +74,7 @@ describe "HTML autocompletions", ->
 
     expect(completions[0].text).toBe 'datalist'
     expect(completions[0].type).toBe 'tag'
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/datalist')).toBe true
     expect(completions[1].text).toBe 'dd'
     expect(completions[2].text).toBe 'del'
     expect(completions[3].text).toBe 'details'

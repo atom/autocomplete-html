@@ -85,15 +85,21 @@ module.exports =
   getAllTagNameCompletions: ->
     completions = []
     for tag, attributes of @completions.tags
-      completions.push({text: tag, type: 'tag'})
+      completions.push(@buildTagCompletion(tag))
     completions
 
   getTagNameCompletions: ({prefix}) ->
     completions = []
     lowerCasePrefix = prefix.toLowerCase()
     for tag, attributes of @completions.tags when tag.indexOf(lowerCasePrefix) is 0
-      completions.push({text: tag, type: 'tag'})
+      completions.push(@buildTagCompletion(tag))
     completions
+
+  buildTagCompletion: (tag) ->
+    text: tag
+    type: 'tag'
+    description: "HTML <#{tag}> tag"
+    descriptionMoreURL: @getTagDocsURL(tag)
 
   getAllAttributeNameCompletions: ({editor, bufferPosition}) ->
     completions = []
