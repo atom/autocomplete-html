@@ -58,9 +58,11 @@ describe "HTML autocompletions", ->
 
     completions = getCompletions()
     expect(completions.length).toBe 112
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/a')).toBe true
 
     for completion in completions
       expect(completion.text.length).toBeGreaterThan 0
+      expect(completion.description.length).toBeGreaterThan 0
       expect(completion.type).toBe 'tag'
 
   it "autocompletes tag names with a prefix", ->
@@ -72,6 +74,7 @@ describe "HTML autocompletions", ->
 
     expect(completions[0].text).toBe 'datalist'
     expect(completions[0].type).toBe 'tag'
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/datalist')).toBe true
     expect(completions[1].text).toBe 'dd'
     expect(completions[2].text).toBe 'del'
     expect(completions[3].text).toBe 'details'
@@ -104,10 +107,12 @@ describe "HTML autocompletions", ->
 
     completions = getCompletions()
     expect(completions.length).toBe 69
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Global_attributes/accesskey')).toBe true
 
     for completion in completions
       expect(completion.snippet.length).toBeGreaterThan 0
       expect(completion.displayText.length).toBeGreaterThan 0
+      expect(completion.description.length).toBeGreaterThan 0
       expect(completion.type).toBe 'attribute'
 
     editor.setText('<marquee ')
@@ -116,10 +121,12 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 81
     expect(completions[0].rightLabel).toBe '<marquee>'
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/marquee#attr-align')).toBe true
 
     for completion in completions
       expect(completion.snippet.length).toBeGreaterThan 0
       expect(completion.displayText.length).toBeGreaterThan 0
+      expect(completion.description.length).toBeGreaterThan 0
       expect(completion.type).toBe 'attribute'
 
   it "autocompletes attribute names with a prefix", ->
@@ -184,19 +191,22 @@ describe "HTML autocompletions", ->
     expect(completions[1].displayText).toBe 'dir'
 
   it "autocompletes attribute values without a prefix", ->
-    editor.setText('<div behavior=""')
-    editor.setCursorBufferPosition([0, 15])
+    editor.setText('<marquee behavior=""')
+    editor.setCursorBufferPosition([0, 19])
 
     completions = getCompletions()
     expect(completions.length).toBe 3
 
+    console.log completions[0].descriptionMoreURL
     expect(completions[0].text).toBe 'scroll'
     expect(completions[0].type).toBe 'value'
+    expect(completions[0].description.length).toBeGreaterThan 0
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/marquee#attr-behavior')).toBe true
     expect(completions[1].text).toBe 'slide'
     expect(completions[2].text).toBe 'alternate'
 
-    editor.setText('<div behavior="')
-    editor.setCursorBufferPosition([0, 15])
+    editor.setText('<marquee behavior="')
+    editor.setCursorBufferPosition([0, 19])
 
     completions = getCompletions()
     expect(completions.length).toBe 3
@@ -205,8 +215,8 @@ describe "HTML autocompletions", ->
     expect(completions[1].text).toBe 'slide'
     expect(completions[2].text).toBe 'alternate'
 
-    editor.setText('<div behavior=\'')
-    editor.setCursorBufferPosition([0, 15])
+    editor.setText('<marquee behavior=\'')
+    editor.setCursorBufferPosition([0, 19])
 
     completions = getCompletions()
     expect(completions.length).toBe 3
@@ -215,8 +225,8 @@ describe "HTML autocompletions", ->
     expect(completions[1].text).toBe 'slide'
     expect(completions[2].text).toBe 'alternate'
 
-    editor.setText('<div behavior=\'\'')
-    editor.setCursorBufferPosition([0, 15])
+    editor.setText('<marquee behavior=\'\'')
+    editor.setCursorBufferPosition([0, 19])
 
     completions = getCompletions()
     expect(completions.length).toBe 3
