@@ -34,7 +34,7 @@ module.exports =
     scopes = scopeDescriptor.getScopesArray()
     if prefix is '<' and scopes.length is 1
       scopes[0] is 'text.html.basic'
-    if prefix is '<' and scopes.length is 2
+    else if prefix is '<' and scopes.length is 2
       scopes[0] is 'text.html.basic' and scopes[1] is 'meta.scope.outside-tag.html'
     else
       false
