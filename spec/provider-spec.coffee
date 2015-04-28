@@ -191,19 +191,22 @@ describe "HTML autocompletions", ->
     expect(completions[1].displayText).toBe 'dir'
 
   it "autocompletes attribute values without a prefix", ->
-    editor.setText('<div behavior=""')
-    editor.setCursorBufferPosition([0, 15])
+    editor.setText('<marquee behavior=""')
+    editor.setCursorBufferPosition([0, 19])
 
     completions = getCompletions()
     expect(completions.length).toBe 3
 
+    console.log completions[0].descriptionMoreURL
     expect(completions[0].text).toBe 'scroll'
     expect(completions[0].type).toBe 'value'
+    expect(completions[0].description.length).toBeGreaterThan 0
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/marquee#attr-behavior')).toBe true
     expect(completions[1].text).toBe 'slide'
     expect(completions[2].text).toBe 'alternate'
 
-    editor.setText('<div behavior="')
-    editor.setCursorBufferPosition([0, 15])
+    editor.setText('<marquee behavior="')
+    editor.setCursorBufferPosition([0, 19])
 
     completions = getCompletions()
     expect(completions.length).toBe 3
@@ -212,8 +215,8 @@ describe "HTML autocompletions", ->
     expect(completions[1].text).toBe 'slide'
     expect(completions[2].text).toBe 'alternate'
 
-    editor.setText('<div behavior=\'')
-    editor.setCursorBufferPosition([0, 15])
+    editor.setText('<marquee behavior=\'')
+    editor.setCursorBufferPosition([0, 19])
 
     completions = getCompletions()
     expect(completions.length).toBe 3
@@ -222,8 +225,8 @@ describe "HTML autocompletions", ->
     expect(completions[1].text).toBe 'slide'
     expect(completions[2].text).toBe 'alternate'
 
-    editor.setText('<div behavior=\'\'')
-    editor.setCursorBufferPosition([0, 15])
+    editor.setText('<marquee behavior=\'\'')
+    editor.setCursorBufferPosition([0, 19])
 
     completions = getCompletions()
     expect(completions.length).toBe 3

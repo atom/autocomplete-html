@@ -144,19 +144,31 @@ module.exports =
       descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
 
   getAllAttributeValueCompletions: ({editor, bufferPosition}) ->
-    completions = []
-    values = @getAttributeValues(editor, bufferPosition)
+    tag = @getPreviousTag(editor, bufferPosition)
+    attribute = @getPreviousAttribute(editor, bufferPosition)
+    values = @getAttributeValues(attribute)
     for value in values
-      completions.push({text: value, type: 'value'})
-    completions
+      @buildAttributeValueCompletion(tag, attribute, value)
 
   getAttributeValueCompletions: ({editor, bufferPosition, prefix}) ->
-    completions = []
-    values = @getAttributeValues(editor, bufferPosition)
+    tag = @getPreviousTag(editor, bufferPosition)
+    attribute = @getPreviousAttribute(editor, bufferPosition)
+    values = @getAttributeValues(attribute)
     lowerCasePrefix = prefix.toLowerCase()
     for value in values when value.indexOf(lowerCasePrefix) is 0
-      completions.push({text: value, type: 'value'})
-    completions
+      @buildAttributeValueCompletion(tag, attribute, value)
+
+  buildAttributeValueCompletion: (tag, attribute, value) ->
+    if @completions.attributes[attribute].global
+      text: value
+      type: 'value'
+      description: "#{value} value for global #{attribute} attribute"
+      descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
+    else
+      text: value
+      type: 'value'
+      description: "#{value} value for #{attribute} attribute local to <#{tag}>"
+      descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
 
   loadCompletions: ->
     @completions = {}
@@ -182,8 +194,8 @@ module.exports =
 
     attributePattern.exec(line)?[1]
 
-  getAttributeValues: (editor, bufferPosition) ->
-    attribute = @completions.attributes[@getPreviousAttribute(editor, bufferPosition)]
+  getAttributeValues: (attribute) ->
+    attribute = @completions.attributes[attribute]
     attribute?.attribOption ? []
 
   getTagAttributes: (tag) ->
