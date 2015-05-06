@@ -15,12 +15,10 @@ module.exports =
       @getAttributeValueCompletions(request)
     else if @isAttributeValueStartWithPrefix(request)
       @getAttributeValueCompletions(request, prefix)
-
     else if @isAttributeStartWithNoPrefix(request)
       @getAttributeNameCompletions(request)
     else if @isAttributeStartWithPrefix(request)
       @getAttributeNameCompletions(request, prefix)
-
     else if @isTagStartWithNoPrefix(request)
       @getTagNameCompletions()
     else if @isTagStartTagWithPrefix(request)
