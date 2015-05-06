@@ -7,20 +7,24 @@ tagPattern = /<([a-zA-Z][-a-zA-Z]*)(?:\s|$)/
 
 module.exports =
   selector: '.text.html'
+  filterSuggestions: true
 
   getSuggestions: (request) ->
+    {prefix} = request
     if @isAttributeValueStartWithNoPrefix(request)
-      @getAllAttributeValueCompletions(request)
-    else if @isAttributeValueStartWithPrefix(request)
       @getAttributeValueCompletions(request)
+    else if @isAttributeValueStartWithPrefix(request)
+      @getAttributeValueCompletions(request, prefix)
+
     else if @isAttributeStartWithNoPrefix(request)
-      @getAllAttributeNameCompletions(request)
-    else if @isAttributeStartWithPrefix(request)
       @getAttributeNameCompletions(request)
+    else if @isAttributeStartWithPrefix(request)
+      @getAttributeNameCompletions(request, prefix)
+
     else if @isTagStartWithNoPrefix(request)
-      @getAllTagNameCompletions()
+      @getTagNameCompletions()
     else if @isTagStartTagWithPrefix(request)
-      @getTagNameCompletions(request)
+      @getTagNameCompletions(prefix)
     else
       []
 
@@ -82,16 +86,9 @@ module.exports =
     scopes.indexOf('string.quoted.double.html') isnt -1 or
       scopes.indexOf('string.quoted.single.html') isnt -1
 
-  getAllTagNameCompletions: ->
+  getTagNameCompletions: (prefix) ->
     completions = []
-    for tag, attributes of @completions.tags
-      completions.push(@buildTagCompletion(tag))
-    completions
-
-  getTagNameCompletions: ({prefix}) ->
-    completions = []
-    lowerCasePrefix = prefix.toLowerCase()
-    for tag, attributes of @completions.tags when tag.indexOf(lowerCasePrefix) is 0
+    for tag, attributes of @completions.tags when not prefix or firstCharsEqual(tag, prefix)
       completions.push(@buildTagCompletion(tag))
     completions
 
@@ -101,29 +98,15 @@ module.exports =
     description: "HTML <#{tag}> tag"
     descriptionMoreURL: @getTagDocsURL(tag)
 
-  getAllAttributeNameCompletions: ({editor, bufferPosition}) ->
+  getAttributeNameCompletions: ({editor, bufferPosition}, prefix) ->
     completions = []
-
     tag = @getPreviousTag(editor, bufferPosition)
     tagAttributes = @getTagAttributes(tag)
-    for attribute in tagAttributes
+
+    for attribute in tagAttributes when not prefix or firstCharsEqual(attribute, prefix)
       completions.push(@buildAttributeCompletion(attribute, tag))
 
-    for attribute, options of @completions.attributes
-      completions.push(@buildAttributeCompletion(attribute)) if options.global
-
-    completions
-
-  getAttributeNameCompletions: ({editor, bufferPosition, prefix}) ->
-    completions = []
-    lowerCasePrefix = prefix.toLowerCase()
-
-    tag = @getPreviousTag(editor, bufferPosition)
-    tagAttributes = @getTagAttributes(tag)
-    for attribute in tagAttributes when attribute.indexOf(lowerCasePrefix) is 0
-      completions.push(@buildAttributeCompletion(attribute, tag))
-
-    for attribute, options of @completions.attributes when attribute.indexOf(lowerCasePrefix) is 0
+    for attribute, options of @completions.attributes when not prefix or firstCharsEqual(attribute, prefix)
       completions.push(@buildAttributeCompletion(attribute)) if options.global
 
     completions
@@ -143,19 +126,11 @@ module.exports =
       description: "Global #{attribute} attribute"
       descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
 
-  getAllAttributeValueCompletions: ({editor, bufferPosition}) ->
+  getAttributeValueCompletions: ({editor, bufferPosition}, prefix) ->
     tag = @getPreviousTag(editor, bufferPosition)
     attribute = @getPreviousAttribute(editor, bufferPosition)
     values = @getAttributeValues(attribute)
-    for value in values
-      @buildAttributeValueCompletion(tag, attribute, value)
-
-  getAttributeValueCompletions: ({editor, bufferPosition, prefix}) ->
-    tag = @getPreviousTag(editor, bufferPosition)
-    attribute = @getPreviousAttribute(editor, bufferPosition)
-    values = @getAttributeValues(attribute)
-    lowerCasePrefix = prefix.toLowerCase()
-    for value in values when value.indexOf(lowerCasePrefix) is 0
+    for value in values when not prefix or firstCharsEqual(value, prefix)
       @buildAttributeValueCompletion(tag, attribute, value)
 
   buildAttributeValueCompletion: (tag, attribute, value) ->
@@ -209,3 +184,6 @@ module.exports =
 
   getGlobalAttributeDocsURL: (attribute) ->
     "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
+
+firstCharsEqual = (str1, str2) ->
+  str1[0].toLowerCase() is str2[0].toLowerCase()
