@@ -30,7 +30,7 @@ module.exports =
     setTimeout(@triggerAutocomplete.bind(this, editor), 1) if suggestion.type is 'attribute'
 
   triggerAutocomplete: (editor) ->
-    atom.commands.dispatch(atom.views.getView(editor), 'autocomplete-plus:activate')
+    atom.commands.dispatch(atom.views.getView(editor), 'autocomplete-plus:activate', activatedManually: false)
 
   isTagStartWithNoPrefix: ({prefix, scopeDescriptor}) ->
     scopes = scopeDescriptor.getScopesArray()
