@@ -7,7 +7,7 @@ tagPattern = /<([a-zA-Z][-a-zA-Z]*)(?:\s|$)/
 
 module.exports =
   selector: '.text.html'
-  disableForSelector: '.text.html .comment, .text.html .string'
+  disableForSelector: '.text.html .comment'
   filterSuggestions: true
 
   getSuggestions: (request) ->
