@@ -1,6 +1,6 @@
 {
   "name": "autocomplete-html",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "HTML element and attribute autocompletions",
   "main": "./lib/main",
   "license": "MIT",
