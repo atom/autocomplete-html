@@ -1,5 +1,6 @@
 fs = require 'fs'
 path = require 'path'
+he = require 'he'
 
 trailingWhitespace = /\s$/
 attributePattern = /\s+([a-zA-Z][-a-zA-Z]*)\s*=\s*$/
@@ -12,7 +13,11 @@ module.exports =
 
   getSuggestions: (request) ->
     {prefix} = request
-    if @isAttributeValueStartWithNoPrefix(request)
+    if @isEntityStartWithNoPrefix(request)
+      @getEntityNameCompletions()
+    else if @isEntityStartWithPrefix(request)
+      @getEntityNameCompletions(prefix)
+    else if @isAttributeValueStartWithNoPrefix(request)
       @getAttributeValueCompletions(request)
     else if @isAttributeValueStartWithPrefix(request)
       @getAttributeValueCompletions(request, prefix)
@@ -74,6 +79,22 @@ module.exports =
     scopes = scopeDescriptor.getScopesArray()
     @hasStringScope(scopes) and @hasTagScope(scopes)
 
+
+  isEntityStartWithNoPrefix: ({scopeDescriptor, prefix}) ->
+    scopes = scopeDescriptor.getScopesArray()
+    if prefix is '&' and scopes.length is 1
+      scopes[0] is 'text.html.basic'
+    else if prefix is '&' and scopes.length is 2
+      scopes[0] is 'text.html.basic' and scopes[1] is 'invalid.illegal.bad-ampersand.html'
+    else
+      false
+
+  isEntityStartWithPrefix: ({scopeDescriptor, prefix}) ->
+    return false unless prefix
+    return false if trailingWhitespace.test(prefix)
+
+    @hasEntityScope(scopeDescriptor.getScopesArray())
+
   hasTagScope: (scopes) ->
     scopes.indexOf('meta.tag.any.html') isnt -1 or
       scopes.indexOf('meta.tag.other.html') isnt -1 or
@@ -85,10 +106,20 @@ module.exports =
     scopes.indexOf('string.quoted.double.html') isnt -1 or
       scopes.indexOf('string.quoted.single.html') isnt -1
 
+  hasEntityScope: (scopes) ->
+    scopes.indexOf('constant.character.entity.html') isnt -1 or
+      scopes.indexOf('entity.name.entity.other.html') isnt -1
+
   getTagNameCompletions: (prefix) ->
     completions = []
     for tag, attributes of @completions.tags when not prefix or firstCharsEqual(tag, prefix)
       completions.push(@buildTagCompletion(tag))
+    completions
+
+  getEntityNameCompletions: (prefix) ->
+    completions = []
+    for entity in @completions.entities when not prefix or firstCharsEqual(entity, prefix)
+      completions.push(@buildEntityCompletion(entity))
     completions
 
   buildTagCompletion: (tag) ->
@@ -96,6 +127,12 @@ module.exports =
     type: 'tag'
     description: "HTML <#{tag}> tag"
     descriptionMoreURL: @getTagDocsURL(tag)
+
+  buildEntityCompletion: (entity) ->
+    text: entity
+    type: 'entity'
+    description: he.decode("&#{entity}")
+    descriptionMoreURL: @getEntityDocsURL(entity)
 
   getAttributeNameCompletions: ({editor, bufferPosition}, prefix) ->
     completions = []
@@ -183,6 +220,9 @@ module.exports =
 
   getGlobalAttributeDocsURL: (attribute) ->
     "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
+
+  getEntityDocsURL: (entity) ->
+    "https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references#Character_entity_references_in_HTML"
 
 firstCharsEqual = (str1, str2) ->
   str1[0].toLowerCase() is str2[0].toLowerCase()

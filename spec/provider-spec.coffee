@@ -283,3 +283,39 @@ describe "HTML autocompletions", ->
     args = atom.commands.dispatch.mostRecentCall.args
     expect(args[0].tagName.toLowerCase()).toBe 'atom-text-editor'
     expect(args[1]).toBe 'autocomplete-plus:activate'
+
+  it "autocompletes entity without a prefix", ->
+    editor.setText('&')
+    editor.setCursorBufferPosition([0, 1])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 276
+    expect(completions[0].descriptionMoreURL.endsWith('/wiki/List_of_XML_and_HTML_character_entity_references#Character_entity_references_in_HTML')).toBe true
+
+    expect(completions[0].text).toBe '#33;'
+    expect(completions[1].text).toBe '#35;'
+    expect(completions[2].text).toBe '#36;'
+    expect(completions[3].text).toBe '#37;'
+    expect(completions[4].text).toBe '#39;'
+    expect(completions[5].text).toBe '#40;'
+
+    for completion in completions
+      expect(completion.type).toBe 'entity'
+
+  it "autocompletes entity with a prefix", ->
+    editor.setText('&a')
+    editor.setCursorBufferPosition([0, 2])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 22
+    expect(completions[0].descriptionMoreURL.endsWith('/wiki/List_of_XML_and_HTML_character_entity_references#Character_entity_references_in_HTML')).toBe true
+
+    expect(completions[0].text).toBe 'aacute;'
+    expect(completions[1].text).toBe 'Aacute;'
+    expect(completions[2].text).toBe 'acirc;'
+    expect(completions[3].text).toBe 'Acirc;'
+    expect(completions[4].text).toBe 'acute;'
+    expect(completions[5].text).toBe 'aelig;'
+
+    for completion in completions
+      expect(completion.type).toBe 'entity'
