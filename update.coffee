@@ -43,11 +43,29 @@ getAttributes = (callback) ->
 
     callback(null, attributes)
 
+getEntities = (callback) ->
+  requestOptions =
+    url: 'https://raw.githubusercontent.com/adobe/brackets/master/src/extensions/default/HtmlEntityCodeHints/SpecialChars.json'
+    json: true
+
+  request requestOptions, (error, response, entities) ->
+    return callback(error) if error?
+
+    if response.statusCode isnt 200
+      return callback(new Error("Request for SpecialChars.json failed: #{response.statusCode}"))
+
+    entities = ((entity.substring 1) + ';' for entity in entities)
+
+    callback(null, entities)
+
 getTags (error, tags) ->
   exitIfError(error)
 
   getAttributes (error, attributes) ->
     exitIfError(error)
 
-    completions = {tags, attributes}
-    fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(completions, null, 0)}\n")
+    getEntities (error, entities) ->
+      exitIfError(error)
+
+      completions = {tags, attributes, entities}
+      fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(completions, null, 0)}\n")
