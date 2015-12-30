@@ -18,5 +18,8 @@
   "devDependencies": {
     "coffeelint": "^1.9.7",
     "request": "^2.53.0"
+  },
+  "dependencies": {
+    "css": "^2.2.1"
   }
 }

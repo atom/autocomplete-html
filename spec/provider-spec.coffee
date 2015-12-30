@@ -283,3 +283,17 @@ describe "HTML autocompletions", ->
     args = atom.commands.dispatch.mostRecentCall.args
     expect(args[0].tagName.toLowerCase()).toBe 'atom-text-editor'
     expect(args[1]).toBe 'autocomplete-plus:activate'
+
+  it "autocompletes class names within same file", ->
+    editor.setText('<style>.test{}</style><div class=""')
+    editor.setCursorBufferPosition([0, 34])
+    completions = getCompletions()
+    expect(completions.length).toBe 1
+    expect(completions[0].text).toBe 'test'
+
+  it "autocompletes ids within same file", ->
+    editor.setText('<style>#test{}</style><div id=""')
+    editor.setCursorBufferPosition([0, 31])
+    completions = getCompletions()
+    expect(completions.length).toBe 1
+    expect(completions[0].text).toBe 'test'
