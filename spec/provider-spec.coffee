@@ -1,3 +1,7 @@
+fs = require 'fs'
+path = require 'path'
+temp = require 'temp'
+
 describe "HTML autocompletions", ->
   [editor, provider] = []
 
@@ -284,16 +288,55 @@ describe "HTML autocompletions", ->
     expect(args[0].tagName.toLowerCase()).toBe 'atom-text-editor'
     expect(args[1]).toBe 'autocomplete-plus:activate'
 
-  it "autocompletes class names within same file", ->
-    editor.setText('<style>.test{}</style><div class=""')
-    editor.setCursorBufferPosition([0, 34])
-    completions = getCompletions()
-    expect(completions.length).toBe 1
-    expect(completions[0].text).toBe 'test'
+describe "CSS completions inside of HTML attributes", ->
+  [editor, provider] = []
 
-  it "autocompletes ids within same file", ->
-    editor.setText('<style>#test{}</style><div id=""')
-    editor.setCursorBufferPosition([0, 31])
+  getCompletions = ->
+    cursor = editor.getLastCursor()
+    start = cursor.getBeginningOfCurrentWordBufferPosition()
+    end = cursor.getBufferPosition()
+    prefix = editor.getTextInRange([start, end])
+    request =
+      editor: editor
+      bufferPosition: end
+      scopeDescriptor: cursor.getScopeDescriptor()
+      prefix: prefix
+    provider.getSuggestions(request)
+
+  beforeEach ->
+    waitsForPromise -> atom.packages.activatePackage('autocomplete-html')
+    waitsForPromise -> atom.packages.activatePackage('language-html')
+    waitsForPromise -> atom.packages.activatePackage('language-css')
+
+    runs ->
+      provider = atom.packages.getActivePackage('autocomplete-html').mainModule.getProvider()
+
+    projectDir = fs.realpathSync(temp.mkdirSync('atom-project'))
+    samplePath = path.join(projectDir, 'sample.html')
+    fs.writeFileSync(samplePath, """<html>
+      <style>
+        #test1 {}
+        .test2 {
+          font-size: 15px;
+        }
+      </style>
+      <div class="
+      <div id="
+      </html>""")
+
+    atom.project.setPaths([projectDir])
+    waitsForPromise -> atom.workspace.open(samplePath)
+    waitsFor -> provider.cssCompletions.length > 0
+    runs -> editor = atom.workspace.getActiveTextEditor()
+
+  it "autocompletes class names within open file", ->
+    editor.setCursorBufferPosition([7, 12])
     completions = getCompletions()
     expect(completions.length).toBe 1
-    expect(completions[0].text).toBe 'test'
+    expect(completions[0].text).toBe 'test2'
+
+  it "autocompletes ids within open file", ->
+    editor.setCursorBufferPosition([8, 9])
+    completions = getCompletions()
+    expect(completions.length).toBe 1
+    expect(completions[0].text).toBe 'test1'
