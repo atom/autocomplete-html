@@ -5,11 +5,12 @@ css = require 'css'
 trailingWhitespace = /\s$/
 attributePattern = /\s+([a-zA-Z][-a-zA-Z]*)\s*=\s*$/
 tagPattern = /<([a-zA-Z][-a-zA-Z]*)(?:\s|$)/
-stylePattern = /<style[^>]*>([\s\S]*?)<\/style>/gmi
 
 module.exports =
   selector: '.text.html'
   disableForSelector: '.text.html .comment'
+  cssClassScope: 'entity.other.attribute-name.class.css'
+  cssIdScope: 'entity.other.attribute-name.id.css'
   filterSuggestions: true
 
   getSuggestions: (request) ->
@@ -130,7 +131,7 @@ module.exports =
   getAttributeValueCompletions: ({editor, bufferPosition}, prefix) ->
     tag = @getPreviousTag(editor, bufferPosition)
     attribute = @getPreviousAttribute(editor, bufferPosition)
-    values = @getAttributeValues(attribute, editor)
+    values = @getAttributeValues(attribute)
     for value in values when not prefix or firstCharsEqual(value, prefix)
       @buildAttributeValueCompletion(tag, attribute, value)
 
@@ -148,9 +149,13 @@ module.exports =
 
   loadCompletions: ->
     @completions = {}
+    @cssCompletions =
+      cls: []
+      ids: []
     fs.readFile path.resolve(__dirname, '..', 'completions.json'), (error, content) =>
       @completions = JSON.parse(content) unless error?
       return
+    @buildCSSCompletions()
 
   getPreviousTag: (editor, bufferPosition) ->
     {row} = bufferPosition
@@ -170,42 +175,41 @@ module.exports =
 
     attributePattern.exec(line)?[1]
 
-  getLocalStylesheets: (editor) ->
-    source = editor.getText()
-    while match = stylePattern.exec(source)
-      match[1]
+  pathLoader: ->
+    fileNames = []
 
-  getStylesheetsAtPath: (dir) ->
-    stylesheets = []
-    for file in fs.readdirSync(dir)
-      filename = path.join(dir, file)
-      if fs.lstatSync(filename).isDirectory()
-        stylesheets = stylesheets.concat(@getStylesheetsAtPath(filename))
-      else if path.extname(filename).toLowerCase() in ['.css', '.scss', '.less']
-        stylesheets.push fs.readFileSync filename, 'utf-8'
-    return stylesheets
+    followSymlinks = atom.config.get 'core.followSymlinks'
+    ignoredNames = atom.config.get('core.ignoredNames') ? []
+    ignoreVcsIgnores = atom.config.get('core.excludeVcsIgnoredPaths')
 
-  buildCSSCompletions: (editor) ->
-    completions =
-      cls: []
-      ids: []
-    stylesheets = @getLocalStylesheets(editor)
-    for p in atom.project.getPaths()
-      stylesheets = stylesheets.concat @getStylesheetsAtPath p
-    for stylesheet in stylesheets
-      for rule in css.parse(stylesheet, {silent: false}).stylesheet.rules
-        for selector in rule.selectors
-          if selector.startsWith('.')
-            completions.cls.push(selector.slice(1))
-          else if selector.startsWith('#')
-            completions.ids.push(selector.slice(1))
-    return completions
+    {Task} = require 'atom'
+    taskPath = require.resolve('./load-paths-handler')
 
-  getAttributeValues: (attribute, editor) ->
+    task = Task.once taskPath, atom.project.getPaths(), followSymlinks,
+      ignoreVcsIgnores, ignoredNames, =>
+        for f in fileNames
+          content = fs.readFileSync(f, 'utf-8')
+          grammar = atom.grammars.selectGrammar(f)
+          for line in grammar.tokenizeLines(content)
+            for token in line
+              [..., scope] = token.scopes
+              if scope is @cssClassScope
+                @cssCompletions.cls.push(token.value)
+              else if scope is @cssIdScope
+                @cssCompletions.ids.push(token.value)
+
+    task.on 'load-stylesheets:stylesheets-found', (paths) ->
+      fileNames.push(paths...)
+
+  buildCSSCompletions: ->
+    # TODO: parse current file also
+    @pathLoader()
+
+  getAttributeValues: (attribute) ->
     if attribute?.toLowerCase() is 'class'
-      return @buildCSSCompletions(editor).cls
+      return @cssCompletions.cls
     else if attribute?.toLowerCase() is 'id'
-      return @buildCSSCompletions(editor).ids
+      return @cssCompletions.ids
     attribute = @completions.attributes[attribute]
     attribute?.attribOption ? []
 

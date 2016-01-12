@@ -20,6 +20,7 @@
     "request": "^2.53.0"
   },
   "dependencies": {
-    "css": "^2.2.1"
+    "async": "^1.5.1",
+    "minimatch": "^3.0.0"
   }
 }
