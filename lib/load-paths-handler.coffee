@@ -5,11 +5,10 @@ path = require 'path'
 {Minimatch} = require 'minimatch'
 
 PathsChunkSize = 10
-extFilter = ['.css', '.scss', '.less']
 emittedPaths = new Set
 
 class PathLoader
-  constructor: (@rootPath, ignoreVcsIgnores, @traverseSymlinkDirectories, @ignoredNames) ->
+  constructor: (@rootPath, ignoreVcsIgnores, @traverseSymlinkDirectories, @ignoredNames, @extensions) ->
     @paths = []
     @realPathCache = {}
     @repo = null
@@ -32,8 +31,8 @@ class PathLoader
         return true if ignoredName.match(relativePath)
 
   pathLoaded: (loadedPath, done) ->
-    isStylesheet = path.extname(loadedPath).toLowerCase() in extFilter
-    unless @isIgnored(loadedPath) or emittedPaths.has(loadedPath) or not isStylesheet
+    badExtension = path.extname(loadedPath).toLowerCase() not in @extensions
+    unless @isIgnored(loadedPath) or emittedPaths.has(loadedPath) or badExtension
       @paths.push(loadedPath)
       emittedPaths.add(loadedPath)
 
@@ -86,7 +85,7 @@ class PathLoader
       else
         done(realPath.search(@rootPath) is 0)
 
-module.exports = (rootPaths, followSymlinks, ignoreVcsIgnores, ignores=[]) ->
+module.exports = (rootPaths, followSymlinks, ignoreVcsIgnores, ignores=[], extensions) ->
   ignoredNames = []
   for ignore in ignores when ignore
     try
@@ -101,7 +100,8 @@ module.exports = (rootPaths, followSymlinks, ignoreVcsIgnores, ignores=[]) ->
         rootPath,
         ignoreVcsIgnores,
         followSymlinks,
-        ignoredNames
+        ignoredNames,
+        extensions
       ).load(next)
     @async()
   )
