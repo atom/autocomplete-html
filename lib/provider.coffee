@@ -1,5 +1,6 @@
 fs = require 'fs'
 path = require 'path'
+{CompositeDisposable, Task} = require 'atom'
 
 trailingWhitespace = /\s$/
 attributePattern = /\s+([a-zA-Z][-a-zA-Z]*)\s*=\s*$/
@@ -8,6 +9,11 @@ tagPattern = /<([a-zA-Z][-a-zA-Z]*)(?:\s|$)/
 module.exports =
   selector: '.text.html'
   disableForSelector: '.text.html .comment'
+  cssClassScope: 'entity.other.attribute-name.class.css'
+  cssIdScope: 'entity.other.attribute-name.id.css'
+  cssClassAttr: 'class'
+  cssIdAttr: 'id'
+  cssFileExtensions: ['.css', '.scss', '.less', '.html']
   filterSuggestions: true
 
   getSuggestions: (request) ->
@@ -133,7 +139,11 @@ module.exports =
       @buildAttributeValueCompletion(tag, attribute, value)
 
   buildAttributeValueCompletion: (tag, attribute, value) ->
-    if @completions.attributes[attribute].global
+    if attribute in [@cssClassAttr, @cssIdAttr]
+      text: value.value
+      type: attribute
+      description: "From #{atom.project.relativizePath(value.path)[1]}"
+    else if @completions.attributes[attribute].global
       text: value
       type: 'value'
       description: "#{value} value for global #{attribute} attribute"
@@ -145,10 +155,19 @@ module.exports =
       descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
 
   loadCompletions: ->
+    @disposables = new CompositeDisposable
     @completions = {}
+    @cssCompletions = []
     fs.readFile path.resolve(__dirname, '..', 'completions.json'), (error, content) =>
       @completions = JSON.parse(content) unless error?
       return
+
+    atom.workspace.observeTextEditors (editor) =>
+      @disposables.add editor.onDidSave (e) =>
+        if path.extname(e.path).toLowerCase() in @cssFileExtensions
+          @cssCompletions = @cssCompletions.filter (c) -> c.path isnt e.path
+          @updateCSSCompletionsFromFile(e.path)
+    @pathLoader()
 
   getPreviousTag: (editor, bufferPosition) ->
     {row} = bufferPosition
@@ -168,7 +187,40 @@ module.exports =
 
     attributePattern.exec(line)?[1]
 
+  updateCSSCompletionsFromFile: (fileName) ->
+    content = fs.readFileSync(fileName, 'utf-8')
+    grammar = atom.grammars.selectGrammar(fileName)
+    for line in grammar.tokenizeLines(content)
+      for token in line
+        [..., scope] = token.scopes
+        if scope in [@cssClassScope, @cssIdScope]
+          @cssCompletions.push
+            path: fileName
+            scope: scope
+            value: token.value
+
+  pathLoader: ->
+    fileNames = []
+
+    followSymlinks = atom.config.get 'core.followSymlinks'
+    ignoredNames = atom.config.get('core.ignoredNames') ? []
+    ignoreVcsIgnores = atom.config.get('core.excludeVcsIgnoredPaths')
+
+    taskPath = require.resolve('./load-paths-handler')
+
+    task = Task.once taskPath, atom.project.getPaths(), followSymlinks,
+      ignoreVcsIgnores, ignoredNames, @cssFileExtensions, =>
+        for f in fileNames
+          @updateCSSCompletionsFromFile(f)
+
+    task.on 'load-stylesheets:stylesheets-found', (paths) ->
+      fileNames.push(paths...)
+
   getAttributeValues: (attribute) ->
+    if attribute?.toLowerCase() is @cssClassAttr
+      return (c for c in @cssCompletions when c.scope is @cssClassScope)
+    else if attribute?.toLowerCase() is @cssIdAttr
+      return (c for c in @cssCompletions when c.scope is @cssIdScope)
     attribute = @completions.attributes[attribute]
     attribute?.attribOption ? []
 
@@ -184,5 +236,9 @@ module.exports =
   getGlobalAttributeDocsURL: (attribute) ->
     "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
 
+  deactivate: ->
+    @disposables.dispose()
+
 firstCharsEqual = (str1, str2) ->
+  str1 = str1?.value or str1
   str1[0].toLowerCase() is str2[0].toLowerCase()
