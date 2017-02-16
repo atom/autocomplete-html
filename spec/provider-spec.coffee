@@ -176,8 +176,6 @@ describe "HTML autocompletions", ->
     editor.setCursorBufferPosition([0, 12])
 
     completions = getCompletions()
-    expect(completions.length).toBe 2
-
     expect(completions[0].displayText).toBe 'direction'
     expect(completions[1].displayText).toBe 'dir'
 
@@ -185,8 +183,6 @@ describe "HTML autocompletions", ->
     editor.setCursorBufferPosition([0, 12])
 
     completions = getCompletions()
-    expect(completions.length).toBe 2
-
     expect(completions[0].displayText).toBe 'direction'
     expect(completions[1].displayText).toBe 'dir'
 
