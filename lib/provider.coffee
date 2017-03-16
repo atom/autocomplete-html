@@ -1,5 +1,5 @@
-fs = require 'fs'
 path = require 'path'
+COMPLETIONS = require '../completions.json'
 
 trailingWhitespace = /\s$/
 attributePattern = /\s+([a-zA-Z][-a-zA-Z]*)\s*=\s*$/
@@ -9,6 +9,7 @@ module.exports =
   selector: '.text.html'
   disableForSelector: '.text.html .comment'
   filterSuggestions: true
+  completions: COMPLETIONS
 
   getSuggestions: (request) ->
     {prefix} = request
@@ -143,12 +144,6 @@ module.exports =
       type: 'value'
       description: "#{value} value for #{attribute} attribute local to <#{tag}>"
       descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
-
-  loadCompletions: ->
-    @completions = {}
-    fs.readFile path.resolve(__dirname, '..', 'completions.json'), (error, content) =>
-      @completions = JSON.parse(content) unless error?
-      return
 
   getPreviousTag: (editor, bufferPosition) ->
     {row} = bufferPosition
