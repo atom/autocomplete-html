@@ -57,7 +57,7 @@ describe "HTML autocompletions", ->
     editor.setCursorBufferPosition([0, 1])
 
     completions = getCompletions()
-    expect(completions.length).toBe 112
+    expect(completions.length).toBe 113
     expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/a')).toBe true
 
     for completion in completions
@@ -106,7 +106,7 @@ describe "HTML autocompletions", ->
     editor.setCursorBufferPosition([0, 5])
 
     completions = getCompletions()
-    expect(completions.length).toBe 69
+    expect(completions.length).toBe 86
     expect(completions[0].descriptionMoreURL.endsWith('/HTML/Global_attributes/accesskey')).toBe true
 
     for completion in completions
@@ -119,7 +119,7 @@ describe "HTML autocompletions", ->
     editor.setCursorBufferPosition([0, 9])
 
     completions = getCompletions()
-    expect(completions.length).toBe 81
+    expect(completions.length).toBe 98
     expect(completions[0].rightLabel).toBe '<marquee>'
     expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/marquee#attr-align')).toBe true
 
