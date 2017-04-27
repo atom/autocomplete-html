@@ -50,4 +50,4 @@ getTags (error, tags) ->
     exitIfError(error)
 
     completions = {tags, attributes}
-    fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(completions, null, 0)}\n")
+    fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(completions, null, '  ')}\n")
