@@ -382,7 +382,7 @@
       "description": "Specifies relationships between the current document and an external resource."
     },
     "main": {
-      "description": "Represents the main content of  the body of a document or application."
+      "description": "Represents the main content of the body of a document or application."
     },
     "map": {
       "attributes": [
@@ -596,7 +596,7 @@
       "attributes": [
         "border"
       ],
-      "description": "Represents tabular data —that is, information expressed via a two-dimensional data table."
+      "description": "Represents tabular data — that is, information expressed via a two-dimensional data table."
     },
     "tbody": {
       "description": "Groups one or more tr elements as the body of a table element."
@@ -669,7 +669,7 @@
         "src",
         "srclang"
       ],
-      "description": "Used as a child of the media elements— audio and video."
+      "description": "Used as a child of the media elements audio and video."
     },
     "tt": {
       "description": "The tt element is obsolete. Avoid using it and update existing code if possible."
