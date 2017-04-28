@@ -96,7 +96,7 @@ module.exports =
     text: tag
     type: 'tag'
     description: description ? "HTML <#{tag}> tag"
-    descriptionMoreURL: @getTagDocsURL(tag)
+    descriptionMoreURL: if description then @getTagDocsURL(tag) else null
 
   getAttributeNameCompletions: ({editor, bufferPosition}, prefix) ->
     completions = []
@@ -124,7 +124,7 @@ module.exports =
     displayText: attribute
     type: 'attribute'
     description: description ? "Global #{attribute} attribute"
-    descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
+    descriptionMoreURL: if description then @getGlobalAttributeDocsURL(attribute) else null
 
   getAttributeValueCompletions: ({editor, bufferPosition}, prefix) ->
     tag = @getPreviousTag(editor, bufferPosition)
