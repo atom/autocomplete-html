@@ -129,7 +129,7 @@ module.exports =
   getAttributeValueCompletions: ({editor, bufferPosition}, prefix) ->
     tag = @getPreviousTag(editor, bufferPosition)
     attribute = @getPreviousAttribute(editor, bufferPosition)
-    values = @getAttributeValues(attribute)
+    values = @getAttributeValues(tag, attribute)
     for value in values when not prefix or firstCharsEqual(value, prefix)
       @buildAttributeValueCompletion(tag, attribute, value)
 
@@ -142,6 +142,7 @@ module.exports =
     else
       text: value
       type: 'value'
+      rightLabel: "<#{tag}>"
       description: "#{value} value for #{attribute} attribute local to <#{tag}>"
       descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
 
@@ -163,9 +164,10 @@ module.exports =
 
     attributePattern.exec(line)?[1]
 
-  getAttributeValues: (attribute) ->
-    attribute = @completions.attributes[attribute]
-    attribute?.attribOption ? []
+  getAttributeValues: (tag, attribute) ->
+    # Some local attributes are valid for multiple tags but have different attribute values
+    # To differentiate them, they are identified in the completions file as tag/attribute
+    @completions.attributes[attribute]?.attribOption ? @completions.attributes["#{tag}/#{attribute}"]?.attribOption ? []
 
   getTagAttributes: (tag) ->
     @completions.tags[tag]?.attributes ? []

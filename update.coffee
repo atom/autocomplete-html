@@ -38,7 +38,6 @@ attributesPromise = new Promise (resolve) ->
       resolve(null)
 
     for attribute, options of attributes
-      delete attributes[attribute] if attribute.indexOf('/') isnt -1
       delete options.attribOption if options.attribOption?.length is 0
 
     resolve(attributes)

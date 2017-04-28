@@ -1687,6 +1687,15 @@
       "type": "flag"
     },
     "name": {},
+    "meta/name": {
+      "attribOption": [
+        "application-name",
+        "author",
+        "description",
+        "generator",
+        "keywords"
+      ]
+    },
     "novalidate": {
       "type": "flag"
     },
@@ -1722,6 +1731,23 @@
         "sidebar",
         "tag",
         "external"
+      ]
+    },
+    "link/rel": {
+      "attribOption": [
+        "alternate",
+        "author",
+        "help",
+        "icon",
+        "license",
+        "next",
+        "pingback",
+        "prefetch",
+        "prev",
+        "search",
+        "sidebar",
+        "stylesheet",
+        "tag"
       ]
     },
     "readonly": {
@@ -1795,6 +1821,90 @@
       "type": "flag"
     },
     "type": {},
+    "button/type": {
+      "attribOption": [
+        "button",
+        "reset",
+        "submit"
+      ]
+    },
+    "command/type": {
+      "attribOption": [
+        "command",
+        "checkbox",
+        "radio"
+      ]
+    },
+    "link/type": {
+      "attribOption": [
+        "text/css"
+      ]
+    },
+    "menu/type": {
+      "attribOption": [
+        "context",
+        "list",
+        "toolbar"
+      ]
+    },
+    "ol/type": {
+      "attribOption": [
+        "1",
+        "a",
+        "A",
+        "i",
+        "I"
+      ]
+    },
+    "script/type": {
+      "attribOption": [
+        "text/javascript",
+        "text/ecmascript",
+        "text/jscript",
+        "text/livescript",
+        "text/tcl",
+        "text/x-javascript",
+        "text/x-ecmascript",
+        "application/x-javascript",
+        "application/x-ecmascript",
+        "application/javascript",
+        "application/ecmascript",
+        "text/babel",
+        "text/jsx"
+      ]
+    },
+    "style/type": {
+      "attribOption": [
+        "text/css"
+      ]
+    },
+    "input/type": {
+      "attribOption": [
+        "button",
+        "checkbox",
+        "color",
+        "date",
+        "datetime",
+        "datetime-local",
+        "email",
+        "file",
+        "hidden",
+        "image",
+        "month",
+        "number",
+        "password",
+        "radio",
+        "range",
+        "reset",
+        "search",
+        "submit",
+        "tel",
+        "text",
+        "time",
+        "url",
+        "week"
+      ]
+    },
     "usemap": {},
     "value": {},
     "vspace": {},
