@@ -326,6 +326,15 @@ describe "HTML autocompletions", ->
     expect(completions[0].description.length).toBeGreaterThan 0
     expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/link#attr-type')).toBe true
 
+  it "provides 'true' and 'false' suggestions when autocompleting boolean attributes", ->
+    editor.setText('<html contenteditable=""')
+    editor.setCursorBufferPosition([0, 23])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 2
+    expect(completions[0].text).toBe 'true'
+    expect(completions[1].text).toBe 'false'
+
   it "triggers autocomplete when an attibute has been inserted", ->
     spyOn(atom.commands, 'dispatch')
     suggestion = {type: 'attribute', text: 'whatever'}

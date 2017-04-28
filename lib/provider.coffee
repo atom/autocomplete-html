@@ -127,11 +127,18 @@ module.exports =
     descriptionMoreURL: if description then @getGlobalAttributeDocsURL(attribute) else null
 
   getAttributeValueCompletions: ({editor, bufferPosition}, prefix) ->
+    completions = []
     tag = @getPreviousTag(editor, bufferPosition)
     attribute = @getPreviousAttribute(editor, bufferPosition)
     values = @getAttributeValues(tag, attribute)
     for value in values when not prefix or firstCharsEqual(value, prefix)
-      @buildAttributeValueCompletion(tag, attribute, value)
+      completions.push(@buildAttributeValueCompletion(tag, attribute, value))
+
+    if completions.length is 0 and @completions.attributes[attribute].type is 'boolean'
+      completions.push(@buildAttributeValueCompletion(tag, attribute, 'true'))
+      completions.push(@buildAttributeValueCompletion(tag, attribute, 'false'))
+
+    completions
 
   buildAttributeValueCompletion: (tag, attribute, value) ->
     if @completions.attributes[attribute].global
