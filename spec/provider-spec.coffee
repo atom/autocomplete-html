@@ -58,6 +58,7 @@ describe "HTML autocompletions", ->
 
     completions = getCompletions()
     expect(completions.length).toBe 113
+    expect(completions[0].description).toContain 'Creates a hyperlink to other web pages'
     expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/a')).toBe true
 
     for completion in completions
@@ -107,6 +108,7 @@ describe "HTML autocompletions", ->
 
     completions = getCompletions()
     expect(completions.length).toBe 86
+    expect(completions[0].description).toContain 'Provides a hint for generating a keyboard shortcut'
     expect(completions[0].descriptionMoreURL.endsWith('/HTML/Global_attributes/accesskey')).toBe true
 
     for completion in completions

@@ -88,14 +88,14 @@ module.exports =
 
   getTagNameCompletions: (prefix) ->
     completions = []
-    for tag, attributes of @completions.tags when not prefix or firstCharsEqual(tag, prefix)
-      completions.push(@buildTagCompletion(tag))
+    for tag, options of @completions.tags when not prefix or firstCharsEqual(tag, prefix)
+      completions.push(@buildTagCompletion(tag, options))
     completions
 
-  buildTagCompletion: (tag) ->
+  buildTagCompletion: (tag, {description}) ->
     text: tag
     type: 'tag'
-    description: "HTML <#{tag}> tag"
+    description: description ? "HTML <#{tag}> tag"
     descriptionMoreURL: @getTagDocsURL(tag)
 
   getAttributeNameCompletions: ({editor, bufferPosition}, prefix) ->
@@ -104,27 +104,27 @@ module.exports =
     tagAttributes = @getTagAttributes(tag)
 
     for attribute in tagAttributes when not prefix or firstCharsEqual(attribute, prefix)
-      completions.push(@buildAttributeCompletion(attribute, tag))
+      completions.push(@buildLocalAttributeCompletion(attribute, tag))
 
     for attribute, options of @completions.attributes when not prefix or firstCharsEqual(attribute, prefix)
-      completions.push(@buildAttributeCompletion(attribute)) if options.global
+      completions.push(@buildGlobalAttributeCompletion(attribute, options)) if options.global
 
     completions
 
-  buildAttributeCompletion: (attribute, tag) ->
-    if tag?
-      snippet: "#{attribute}=\"$1\"$0"
-      displayText: attribute
-      type: 'attribute'
-      rightLabel: "<#{tag}>"
-      description: "#{attribute} attribute local to <#{tag}> tags"
-      descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
-    else
-      snippet: "#{attribute}=\"$1\"$0"
-      displayText: attribute
-      type: 'attribute'
-      description: "Global #{attribute} attribute"
-      descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
+  buildLocalAttributeCompletion: (attribute, tag) ->
+    snippet: "#{attribute}=\"$1\"$0"
+    displayText: attribute
+    type: 'attribute'
+    rightLabel: "<#{tag}>"
+    description: "#{attribute} attribute local to <#{tag}> tags"
+    descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
+
+  buildGlobalAttributeCompletion: (attribute, {description}) ->
+    snippet: "#{attribute}=\"$1\"$0"
+    displayText: attribute
+    type: 'attribute'
+    description: description ? "Global #{attribute} attribute"
+    descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
 
   getAttributeValueCompletions: ({editor, bufferPosition}, prefix) ->
     tag = @getPreviousTag(editor, bufferPosition)
