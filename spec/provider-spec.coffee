@@ -110,6 +110,7 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
 
     expect(completions[2].text).toBe 'ilayer'
+    expect(completions[2].description).toBe 'HTML <ilayer> tag'
     expect(completions[2].descriptionMoreURL).toBeNull()
 
   it "autocompletes attribute names without a prefix", ->
@@ -205,6 +206,7 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
 
     expect(completions[0].displayText).toBe 'onabort'
+    expect(completions[0].description).toBe 'Global onabort attribute'
     expect(completions[0].descriptionMoreURL).toBeNull()
 
   it "autocompletes attribute values without a prefix", ->
