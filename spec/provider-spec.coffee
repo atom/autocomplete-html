@@ -195,7 +195,6 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    console.log completions[0].descriptionMoreURL
     expect(completions[0].text).toBe 'scroll'
     expect(completions[0].type).toBe 'value'
     expect(completions[0].description.length).toBeGreaterThan 0
@@ -273,6 +272,31 @@ describe "HTML autocompletions", ->
     expect(completions[3].text).toBe 'et'
     expect(completions[4].text).toBe 'el'
     expect(completions[5].text).toBe 'es'
+
+  it "autocompletes ambiguous attribute values", ->
+    editor.setText('<button type=""')
+    editor.setCursorBufferPosition([0, 14])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 3
+
+    expect(completions[0].text).toBe 'button'
+    expect(completions[0].type).toBe 'value'
+    expect(completions[0].description.length).toBeGreaterThan 0
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/button#attr-type')).toBe true
+    expect(completions[1].text).toBe 'reset'
+    expect(completions[2].text).toBe 'submit'
+
+    editor.setText('<link type=""')
+    editor.setCursorBufferPosition([0, 12])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 1
+
+    expect(completions[0].text).toBe 'text/css'
+    expect(completions[0].type).toBe 'value'
+    expect(completions[0].description.length).toBeGreaterThan 0
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/link#attr-type')).toBe true
 
   it "triggers autocomplete when an attibute has been inserted", ->
     spyOn(atom.commands, 'dispatch')
