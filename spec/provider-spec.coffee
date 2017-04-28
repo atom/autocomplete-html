@@ -102,6 +102,16 @@ describe "HTML autocompletions", ->
     expect(completions[7].text).toBe 'dl'
     expect(completions[8].text).toBe 'dt'
 
+  it "does not provide a descriptionMoreURL if the tag does not have a unique description", ->
+    # ilayer does not have an associated MDN page as of April 27, 2017
+    editor.setText('<i')
+    editor.setCursorBufferPosition([0, 2])
+
+    completions = getCompletions()
+
+    expect(completions[2].text).toBe 'ilayer'
+    expect(completions[2].descriptionMoreURL).toBeNull()
+
   it "autocompletes attribute names without a prefix", ->
     editor.setText('<div ')
     editor.setCursorBufferPosition([0, 5])
@@ -187,6 +197,15 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions[0].displayText).toBe 'direction'
     expect(completions[1].displayText).toBe 'dir'
+
+  it "does not provide a descriptionMoreURL if the attribute does not have a unique description", ->
+    editor.setText('<input on')
+    editor.setCursorBufferPosition([0, 9])
+
+    completions = getCompletions()
+
+    expect(completions[0].displayText).toBe 'onabort'
+    expect(completions[0].descriptionMoreURL).toBeNull()
 
   it "autocompletes attribute values without a prefix", ->
     editor.setText('<marquee behavior=""')
