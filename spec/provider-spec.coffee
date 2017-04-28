@@ -222,6 +222,15 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions[0].snippet).toBe 'autofocus'
 
+  it "does not throw when a local attribute is not in the attributes list", ->
+    # Some tags, like body, have local attributes that are not present in the top-level attributes array
+    editor.setText('<body ')
+    editor.setCursorBufferPosition([0, 6])
+
+    completions = []
+    expect(-> completions = getCompletions()).not.toThrow()
+    expect(completions[0].displayText).toBe 'onafterprint'
+
   it "does not provide a descriptionMoreURL if the attribute does not have a unique description", ->
     editor.setText('<input on')
     editor.setCursorBufferPosition([0, 9])
