@@ -58,6 +58,7 @@ describe "HTML autocompletions", ->
 
     completions = getCompletions()
     expect(completions.length).toBe 113
+    expect(completions[0].description).toContain 'Creates a hyperlink to other web pages'
     expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/a')).toBe true
 
     for completion in completions
@@ -101,12 +102,24 @@ describe "HTML autocompletions", ->
     expect(completions[7].text).toBe 'dl'
     expect(completions[8].text).toBe 'dt'
 
+  it "does not provide a descriptionMoreURL if the tag does not have a unique description", ->
+    # ilayer does not have an associated MDN page as of April 27, 2017
+    editor.setText('<i')
+    editor.setCursorBufferPosition([0, 2])
+
+    completions = getCompletions()
+
+    expect(completions[2].text).toBe 'ilayer'
+    expect(completions[2].description).toBe 'HTML <ilayer> tag'
+    expect(completions[2].descriptionMoreURL).toBeNull()
+
   it "autocompletes attribute names without a prefix", ->
     editor.setText('<div ')
     editor.setCursorBufferPosition([0, 5])
 
     completions = getCompletions()
     expect(completions.length).toBe 86
+    expect(completions[0].description).toContain 'Provides a hint for generating a keyboard shortcut'
     expect(completions[0].descriptionMoreURL.endsWith('/HTML/Global_attributes/accesskey')).toBe true
 
     for completion in completions
@@ -186,6 +199,16 @@ describe "HTML autocompletions", ->
     expect(completions[0].displayText).toBe 'direction'
     expect(completions[1].displayText).toBe 'dir'
 
+  it "does not provide a descriptionMoreURL if the attribute does not have a unique description", ->
+    editor.setText('<input on')
+    editor.setCursorBufferPosition([0, 9])
+
+    completions = getCompletions()
+
+    expect(completions[0].displayText).toBe 'onabort'
+    expect(completions[0].description).toBe 'Global onabort attribute'
+    expect(completions[0].descriptionMoreURL).toBeNull()
+
   it "autocompletes attribute values without a prefix", ->
     editor.setText('<marquee behavior=""')
     editor.setCursorBufferPosition([0, 19])
@@ -193,7 +216,6 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions.length).toBe 3
 
-    console.log completions[0].descriptionMoreURL
     expect(completions[0].text).toBe 'scroll'
     expect(completions[0].type).toBe 'value'
     expect(completions[0].description.length).toBeGreaterThan 0
@@ -271,6 +293,31 @@ describe "HTML autocompletions", ->
     expect(completions[3].text).toBe 'et'
     expect(completions[4].text).toBe 'el'
     expect(completions[5].text).toBe 'es'
+
+  it "autocompletes ambiguous attribute values", ->
+    editor.setText('<button type=""')
+    editor.setCursorBufferPosition([0, 14])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 3
+
+    expect(completions[0].text).toBe 'button'
+    expect(completions[0].type).toBe 'value'
+    expect(completions[0].description.length).toBeGreaterThan 0
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/button#attr-type')).toBe true
+    expect(completions[1].text).toBe 'reset'
+    expect(completions[2].text).toBe 'submit'
+
+    editor.setText('<link type=""')
+    editor.setCursorBufferPosition([0, 12])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 1
+
+    expect(completions[0].text).toBe 'text/css'
+    expect(completions[0].type).toBe 'value'
+    expect(completions[0].description.length).toBeGreaterThan 0
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/link#attr-type')).toBe true
 
   it "triggers autocomplete when an attibute has been inserted", ->
     spyOn(atom.commands, 'dispatch')

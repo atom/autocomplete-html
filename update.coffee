@@ -4,50 +4,57 @@
 path = require 'path'
 fs = require 'fs'
 request = require 'request'
+fetchTagDescriptions = require './fetch-tag-docs'
+fetchGlobalAttributeDescriptions = require './fetch-global-attribute-docs'
 
-exitIfError = (error) ->
-  if error?
-    console.error(error.message)
-    return process.exit(1)
+TagsURL = 'https://raw.githubusercontent.com/adobe/brackets/master/src/extensions/default/HTMLCodeHints/HtmlTags.json'
+AttributesURL = 'https://raw.githubusercontent.com/adobe/brackets/master/src/extensions/default/HTMLCodeHints/HtmlAttributes.json'
 
-getTags = (callback) ->
-  requestOptions =
-    url: 'https://raw.githubusercontent.com/adobe/brackets/master/src/extensions/default/HTMLCodeHints/HtmlTags.json'
-    json: true
-
-  request requestOptions, (error, response, tags) ->
-    return callback(error) if error?
+tagsPromise = new Promise (resolve) ->
+  request {json: true, url: TagsURL}, (error, response, tags) ->
+    if error?
+      console.error(error.message)
+      resolve(null)
 
     if response.statusCode isnt 200
-      return callback(new Error("Request for HtmlTags.json failed: #{response.statusCode}"))
+      console.error("Request for HtmlTags.json failed: #{response.statusCode}")
+      resolve(null)
 
     for tag, options of tags
       delete options.attributes if options.attributes?.length is 0
 
-    callback(null, tags)
+    resolve(tags)
 
-getAttributes = (callback) ->
-  requestOptions =
-    url: 'https://raw.githubusercontent.com/adobe/brackets/master/src/extensions/default/HTMLCodeHints/HtmlAttributes.json'
-    json: true
+tagDescriptionsPromise = fetchTagDescriptions()
 
-  request requestOptions, (error, response, attributes) ->
-    return callback(error) if error?
+attributesPromise = new Promise (resolve) ->
+  request {json: true, url: AttributesURL}, (error, response, attributes) ->
+    if error?
+      console.error(error.message)
+      resolve(null)
 
     if response.statusCode isnt 200
-      return callback(new Error("Request for HtmlAttributes.json failed: #{response.statusCode}"))
+      console.error("Request for HtmlAttributes.json failed: #{response.statusCode}")
+      resolve(null)
 
     for attribute, options of attributes
-      delete attributes[attribute] if attribute.indexOf('/') isnt -1
       delete options.attribOption if options.attribOption?.length is 0
 
-    callback(null, attributes)
+    resolve(attributes)
 
-getTags (error, tags) ->
-  exitIfError(error)
+globalAttributeDescriptionsPromise = fetchGlobalAttributeDescriptions()
 
-  getAttributes (error, attributes) ->
-    exitIfError(error)
+Promise.all([tagsPromise, tagDescriptionsPromise, attributesPromise, globalAttributeDescriptionsPromise]).then (values) ->
+  tags = values[0]
+  tagDescriptions = values[1]
+  attributes = values[2]
+  attributeDescriptions = values[3]
 
-    completions = {tags, attributes}
-    fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(completions, null, '  ')}\n")
+  for tag of tags
+    tags[tag].description = tagDescriptions[tag]
+
+  for attribute, options of attributes
+    attributes[attribute].description = attributeDescriptions[attribute] if options.global
+
+  completions = {tags, attributes}
+  fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(completions, null, '  ')}\n")

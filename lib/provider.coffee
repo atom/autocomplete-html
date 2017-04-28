@@ -88,15 +88,15 @@ module.exports =
 
   getTagNameCompletions: (prefix) ->
     completions = []
-    for tag, attributes of @completions.tags when not prefix or firstCharsEqual(tag, prefix)
-      completions.push(@buildTagCompletion(tag))
+    for tag, options of @completions.tags when not prefix or firstCharsEqual(tag, prefix)
+      completions.push(@buildTagCompletion(tag, options))
     completions
 
-  buildTagCompletion: (tag) ->
+  buildTagCompletion: (tag, {description}) ->
     text: tag
     type: 'tag'
-    description: "HTML <#{tag}> tag"
-    descriptionMoreURL: @getTagDocsURL(tag)
+    description: description ? "HTML <#{tag}> tag"
+    descriptionMoreURL: if description then @getTagDocsURL(tag) else null
 
   getAttributeNameCompletions: ({editor, bufferPosition}, prefix) ->
     completions = []
@@ -104,32 +104,32 @@ module.exports =
     tagAttributes = @getTagAttributes(tag)
 
     for attribute in tagAttributes when not prefix or firstCharsEqual(attribute, prefix)
-      completions.push(@buildAttributeCompletion(attribute, tag))
+      completions.push(@buildLocalAttributeCompletion(attribute, tag))
 
     for attribute, options of @completions.attributes when not prefix or firstCharsEqual(attribute, prefix)
-      completions.push(@buildAttributeCompletion(attribute)) if options.global
+      completions.push(@buildGlobalAttributeCompletion(attribute, options)) if options.global
 
     completions
 
-  buildAttributeCompletion: (attribute, tag) ->
-    if tag?
-      snippet: "#{attribute}=\"$1\"$0"
-      displayText: attribute
-      type: 'attribute'
-      rightLabel: "<#{tag}>"
-      description: "#{attribute} attribute local to <#{tag}> tags"
-      descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
-    else
-      snippet: "#{attribute}=\"$1\"$0"
-      displayText: attribute
-      type: 'attribute'
-      description: "Global #{attribute} attribute"
-      descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
+  buildLocalAttributeCompletion: (attribute, tag) ->
+    snippet: "#{attribute}=\"$1\"$0"
+    displayText: attribute
+    type: 'attribute'
+    rightLabel: "<#{tag}>"
+    description: "#{attribute} attribute local to <#{tag}> tags"
+    descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
+
+  buildGlobalAttributeCompletion: (attribute, {description}) ->
+    snippet: "#{attribute}=\"$1\"$0"
+    displayText: attribute
+    type: 'attribute'
+    description: description ? "Global #{attribute} attribute"
+    descriptionMoreURL: if description then @getGlobalAttributeDocsURL(attribute) else null
 
   getAttributeValueCompletions: ({editor, bufferPosition}, prefix) ->
     tag = @getPreviousTag(editor, bufferPosition)
     attribute = @getPreviousAttribute(editor, bufferPosition)
-    values = @getAttributeValues(attribute)
+    values = @getAttributeValues(tag, attribute)
     for value in values when not prefix or firstCharsEqual(value, prefix)
       @buildAttributeValueCompletion(tag, attribute, value)
 
@@ -142,6 +142,7 @@ module.exports =
     else
       text: value
       type: 'value'
+      rightLabel: "<#{tag}>"
       description: "#{value} value for #{attribute} attribute local to <#{tag}>"
       descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
 
@@ -163,9 +164,10 @@ module.exports =
 
     attributePattern.exec(line)?[1]
 
-  getAttributeValues: (attribute) ->
-    attribute = @completions.attributes[attribute]
-    attribute?.attribOption ? []
+  getAttributeValues: (tag, attribute) ->
+    # Some local attributes are valid for multiple tags but have different attribute values
+    # To differentiate them, they are identified in the completions file as tag/attribute
+    @completions.attributes[attribute]?.attribOption ? @completions.attributes["#{tag}/#{attribute}"]?.attribOption ? []
 
   getTagAttributes: (tag) ->
     @completions.tags[tag]?.attributes ? []
