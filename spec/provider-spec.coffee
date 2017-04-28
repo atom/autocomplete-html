@@ -199,6 +199,22 @@ describe "HTML autocompletions", ->
     expect(completions[0].displayText).toBe 'direction'
     expect(completions[1].displayText).toBe 'dir'
 
+  it "autocompletes attribute names without a prefix surrounded by whitespace", ->
+    editor.setText('<select  autofocus')
+    editor.setCursorBufferPosition([0, 8])
+
+    completions = getCompletions()
+    expect(completion.type).toBe 'attribute' for completion in completions
+    expect(completions[0].displayText).toBe 'autofocus'
+
+  it "autocompletes attribute names with a prefix surrounded by whitespace", ->
+    editor.setText('<select o autofocus')
+    editor.setCursorBufferPosition([0, 9])
+
+    completions = getCompletions()
+    expect(completion.type).toBe 'attribute' for completion in completions
+    expect(completions[0].displayText).toBe 'onabort'
+
   it "respects the 'flag' type when autocompleting attribute names", ->
     editor.setText('<select ')
     editor.setCursorBufferPosition([0, 8])
