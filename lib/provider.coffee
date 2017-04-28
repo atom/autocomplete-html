@@ -117,8 +117,8 @@ module.exports =
 
     completions
 
-  buildLocalAttributeCompletion: (attribute, tag, {type}) ->
-    snippet: if type is 'flag' then attribute else "#{attribute}=\"$1\"$0"
+  buildLocalAttributeCompletion: (attribute, tag, options) ->
+    snippet: if options?.type is 'flag' then attribute else "#{attribute}=\"$1\"$0"
     displayText: attribute
     type: 'attribute'
     rightLabel: "<#{tag}>"
