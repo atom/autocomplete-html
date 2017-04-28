@@ -199,6 +199,13 @@ describe "HTML autocompletions", ->
     expect(completions[0].displayText).toBe 'direction'
     expect(completions[1].displayText).toBe 'dir'
 
+  it "respects the 'flag' type when autocompleting attribute names", ->
+    editor.setText('<select ')
+    editor.setCursorBufferPosition([0, 8])
+
+    completions = getCompletions()
+    expect(completions[0].snippet).toBe 'autofocus'
+
   it "does not provide a descriptionMoreURL if the attribute does not have a unique description", ->
     editor.setText('<input on')
     editor.setCursorBufferPosition([0, 9])

@@ -104,23 +104,23 @@ module.exports =
     tagAttributes = @getTagAttributes(tag)
 
     for attribute in tagAttributes when not prefix or firstCharsEqual(attribute, prefix)
-      completions.push(@buildLocalAttributeCompletion(attribute, tag))
+      completions.push(@buildLocalAttributeCompletion(attribute, tag, @completions.attributes[attribute]))
 
     for attribute, options of @completions.attributes when not prefix or firstCharsEqual(attribute, prefix)
       completions.push(@buildGlobalAttributeCompletion(attribute, options)) if options.global
 
     completions
 
-  buildLocalAttributeCompletion: (attribute, tag) ->
-    snippet: "#{attribute}=\"$1\"$0"
+  buildLocalAttributeCompletion: (attribute, tag, {type}) ->
+    snippet: if type is 'flag' then attribute else "#{attribute}=\"$1\"$0"
     displayText: attribute
     type: 'attribute'
     rightLabel: "<#{tag}>"
     description: "#{attribute} attribute local to <#{tag}> tags"
     descriptionMoreURL: @getLocalAttributeDocsURL(attribute, tag)
 
-  buildGlobalAttributeCompletion: (attribute, {description}) ->
-    snippet: "#{attribute}=\"$1\"$0"
+  buildGlobalAttributeCompletion: (attribute, {description, type}) ->
+    snippet: if type is 'flag' then attribute else "#{attribute}=\"$1\"$0"
     displayText: attribute
     type: 'attribute'
     description: description ? "Global #{attribute} attribute"
