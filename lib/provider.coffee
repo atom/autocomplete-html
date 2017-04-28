@@ -52,12 +52,18 @@ module.exports =
     return false unless trailingWhitespace.test(prefix)
     @hasTagScope(scopeDescriptor.getScopesArray())
 
-  isAttributeStartWithPrefix: ({prefix, scopeDescriptor}) ->
+  isAttributeStartWithPrefix: ({prefix, scopeDescriptor, bufferPosition, editor}) ->
     return false unless prefix
     return false if trailingWhitespace.test(prefix)
 
     scopes = scopeDescriptor.getScopesArray()
-    return true if scopes.indexOf('entity.other.attribute-name.html') isnt -1
+
+    previousBufferPosition = [bufferPosition.row, Math.max(0, bufferPosition.column - 1)]
+    previousScopes = editor.scopeDescriptorForBufferPosition(previousBufferPosition)
+    previousScopesArray = previousScopes.getScopesArray()
+
+    return true if scopes.indexOf('entity.other.attribute-name.html') isnt -1 or
+      previousScopesArray.indexOf('entity.other.attribute-name.html') isnt -1
     return false unless @hasTagScope(scopes)
 
     scopes.indexOf('punctuation.definition.tag.html') isnt -1 or
