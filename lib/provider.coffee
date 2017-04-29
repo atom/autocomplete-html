@@ -13,10 +13,8 @@ module.exports =
 
   getSuggestions: (request) ->
     {prefix} = request
-    if @isAttributeValueStartWithNoPrefix(request)
+    if @isAttributeValueStart(request)
       @getAttributeValueCompletions(request)
-    else if @isAttributeValueStartWithPrefix(request)
-      @getAttributeValueCompletions(request, prefix)
     else if @isAttributeStartWithNoPrefix(request)
       @getAttributeNameCompletions(request)
     else if @isAttributeStartWithPrefix(request)
@@ -69,28 +67,18 @@ module.exports =
     scopes.indexOf('punctuation.definition.tag.html') isnt -1 or
       scopes.indexOf('punctuation.definition.tag.end.html') isnt -1
 
-  isAttributeValueStartWithNoPrefix: ({scopeDescriptor, prefix, bufferPosition, editor}) ->
-    lastPrefixCharacter = prefix[prefix.length - 1]
-    return false unless lastPrefixCharacter in ['"', "'"]
-
+  isAttributeValueStart: ({scopeDescriptor, bufferPosition, editor}) ->
     scopes = scopeDescriptor.getScopesArray()
 
     previousBufferPosition = [bufferPosition.row, Math.max(0, bufferPosition.column - 1)]
     previousScopes = editor.scopeDescriptorForBufferPosition(previousBufferPosition)
     previousScopesArray = previousScopes.getScopesArray()
 
-    @hasStringScope(scopes) and
-      (scopes.indexOf('punctuation.definition.string.end.html') is -1 or
-      previousScopesArray.indexOf('punctuation.definition.string.begin.html') isnt -1) and
-      @hasTagScope(scopes)
-
-  isAttributeValueStartWithPrefix: ({scopeDescriptor, prefix}) ->
-    return false unless prefix
-    lastPrefixCharacter = prefix[prefix.length - 1]
-    return false if lastPrefixCharacter in ['"', "'"]
-    scopes = scopeDescriptor.getScopesArray()
-    @hasStringScope(scopes) and
-      scopes.indexOf('punctuation.definition.string.begin.html') is -1 and
+    # autocomplete here: "|"
+    # not here: |""
+    # or here: ""|
+    @hasStringScope(scopes) and @hasStringScope(previousScopesArray) and
+      previousScopesArray.indexOf('punctuation.definition.string.end.html') is -1 and
       @hasTagScope(scopes)
 
   hasTagScope: (scopes) ->
@@ -144,7 +132,8 @@ module.exports =
     description: description ? "Global #{attribute} attribute"
     descriptionMoreURL: if description then @getGlobalAttributeDocsURL(attribute) else null
 
-  getAttributeValueCompletions: ({editor, bufferPosition}, prefix) ->
+  getAttributeValueCompletions: ({prefix, editor, bufferPosition}) ->
+    prefix = undefined if prefix.endsWith('"') or prefix.endsWith("'")
     completions = []
     tag = @getPreviousTag(editor, bufferPosition)
     attribute = @getPreviousAttribute(editor, bufferPosition)
