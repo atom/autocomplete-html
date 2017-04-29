@@ -137,7 +137,7 @@ module.exports =
     tag = @getPreviousTag(editor, bufferPosition)
     attribute = @getPreviousAttribute(editor, bufferPosition)
     values = @getAttributeValues(tag, attribute)
-    for value in values when not prefix or firstCharsEqual(value, prefix) or prefix.endsWith('"') or prefix.endsWith("'")
+    for value in values when not prefix or firstCharsEqual(value, prefix)
       completions.push(@buildAttributeValueCompletion(tag, attribute, value))
 
     if completions.length is 0 and @completions.attributes[attribute].type is 'boolean'

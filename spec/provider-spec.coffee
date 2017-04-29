@@ -6,6 +6,10 @@ describe "HTML autocompletions", ->
     start = cursor.getBeginningOfCurrentWordBufferPosition()
     end = cursor.getBufferPosition()
     prefix = editor.getTextInRange([start, end])
+    # The above implementation is a simplified version of what ac+ uses and
+    # is incorrect for attribute values. Fix the prefix when that happens
+    # so that we're testing actual scenarios
+    prefix = '' if prefix.startsWith('="') or prefix.startsWith("='")
     request =
       editor: editor
       bufferPosition: end
@@ -231,22 +235,6 @@ describe "HTML autocompletions", ->
     expect(-> completions = getCompletions()).not.toThrow()
     expect(completions[0].displayText).toBe 'onafterprint'
 
-  it "does not attempt to autocomplete values before the beginning of a string", ->
-    editor.setText('<button type=""')
-    editor.setCursorBufferPosition([0, 13])
-
-    completions = []
-    expect(-> completions = getCompletions()).not.toThrow()
-    expect(completions.length).toBe 0
-
-  it "does not attempt to autocomplete values after the end of a string", ->
-    editor.setText('<button type=""')
-    editor.setCursorBufferPosition([0, 15])
-
-    completions = []
-    expect(-> completions = getCompletions()).not.toThrow()
-    expect(completions.length).toBe 0
-
   it "does not provide a descriptionMoreURL if the attribute does not have a unique description", ->
     editor.setText('<input on')
     editor.setCursorBufferPosition([0, 9])
@@ -375,6 +363,22 @@ describe "HTML autocompletions", ->
     expect(completions.length).toBe 2
     expect(completions[0].text).toBe 'true'
     expect(completions[1].text).toBe 'false'
+
+  it "does not attempt to autocomplete values before the beginning of a string", ->
+    editor.setText('<button type=""')
+    editor.setCursorBufferPosition([0, 13])
+
+    completions = []
+    expect(-> completions = getCompletions()).not.toThrow()
+    expect(completions.length).toBe 0
+
+  it "does not attempt to autocomplete values after the end of a string", ->
+    editor.setText('<button type=""')
+    editor.setCursorBufferPosition([0, 15])
+
+    completions = []
+    expect(-> completions = getCompletions()).not.toThrow()
+    expect(completions.length).toBe 0
 
   it "triggers autocomplete when an attibute has been inserted", ->
     spyOn(atom.commands, 'dispatch')
