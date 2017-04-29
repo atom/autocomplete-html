@@ -231,6 +231,22 @@ describe "HTML autocompletions", ->
     expect(-> completions = getCompletions()).not.toThrow()
     expect(completions[0].displayText).toBe 'onafterprint'
 
+  it "does not attempt to autocomplete values before the beginning of a string", ->
+    editor.setText('<button type=""')
+    editor.setCursorBufferPosition([0, 13])
+
+    completions = []
+    expect(-> completions = getCompletions()).not.toThrow()
+    expect(completions.length).toBe 0
+
+  it "does not attempt to autocomplete values after the end of a string", ->
+    editor.setText('<button type=""')
+    editor.setCursorBufferPosition([0, 15])
+
+    completions = []
+    expect(-> completions = getCompletions()).not.toThrow()
+    expect(completions.length).toBe 0
+
   it "does not provide a descriptionMoreURL if the attribute does not have a unique description", ->
     editor.setText('<input on')
     editor.setCursorBufferPosition([0, 9])
