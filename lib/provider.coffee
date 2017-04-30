@@ -13,10 +13,8 @@ module.exports =
 
   getSuggestions: (request) ->
     {prefix} = request
-    if @isAttributeValueStartWithNoPrefix(request)
+    if @isAttributeValueStart(request)
       @getAttributeValueCompletions(request)
-    else if @isAttributeValueStartWithPrefix(request)
-      @getAttributeValueCompletions(request, prefix)
     else if @isAttributeStartWithNoPrefix(request)
       @getAttributeNameCompletions(request)
     else if @isAttributeStartWithPrefix(request)
@@ -69,29 +67,21 @@ module.exports =
     scopes.indexOf('punctuation.definition.tag.html') isnt -1 or
       scopes.indexOf('punctuation.definition.tag.end.html') isnt -1
 
-  isAttributeValueStartWithNoPrefix: ({scopeDescriptor, prefix, bufferPosition, editor}) ->
-    lastPrefixCharacter = prefix[prefix.length - 1]
-    return false unless lastPrefixCharacter in ['"', "'"]
-
+  isAttributeValueStart: ({scopeDescriptor, bufferPosition, editor}) ->
     scopes = scopeDescriptor.getScopesArray()
 
     previousBufferPosition = [bufferPosition.row, Math.max(0, bufferPosition.column - 1)]
     previousScopes = editor.scopeDescriptorForBufferPosition(previousBufferPosition)
     previousScopesArray = previousScopes.getScopesArray()
 
-    @hasStringScope(scopes) and
-      (scopes.indexOf('punctuation.definition.string.end.html') is -1 or
-      previousScopesArray.indexOf('punctuation.definition.string.begin.html') isnt -1) and
-      @hasTagScope(scopes)
-
-  isAttributeValueStartWithPrefix: ({scopeDescriptor, prefix}) ->
-    return false unless prefix
-    lastPrefixCharacter = prefix[prefix.length - 1]
-    return false if lastPrefixCharacter in ['"', "'"]
-    scopes = scopeDescriptor.getScopesArray()
-    @hasStringScope(scopes) and
-      scopes.indexOf('punctuation.definition.string.begin.html') is -1 and
-      @hasTagScope(scopes)
+    # autocomplete here: attribute="|"
+    # not here: attribute=|""
+    # or here: attribute=""|
+    # or here: attribute="""|
+    @hasStringScope(scopes) and @hasStringScope(previousScopesArray) and
+      previousScopesArray.indexOf('punctuation.definition.string.end.html') is -1 and
+      @hasTagScope(scopes) and
+      @getPreviousAttribute(editor, bufferPosition)?
 
   hasTagScope: (scopes) ->
     scopes.indexOf('meta.tag.any.html') isnt -1 or
@@ -144,7 +134,7 @@ module.exports =
     description: description ? "Global #{attribute} attribute"
     descriptionMoreURL: if description then @getGlobalAttributeDocsURL(attribute) else null
 
-  getAttributeValueCompletions: ({editor, bufferPosition}, prefix) ->
+  getAttributeValueCompletions: ({prefix, editor, bufferPosition}) ->
     completions = []
     tag = @getPreviousTag(editor, bufferPosition)
     attribute = @getPreviousAttribute(editor, bufferPosition)
@@ -152,7 +142,7 @@ module.exports =
     for value in values when not prefix or firstCharsEqual(value, prefix)
       completions.push(@buildAttributeValueCompletion(tag, attribute, value))
 
-    if completions.length is 0 and @completions.attributes[attribute].type is 'boolean'
+    if completions.length is 0 and @completions.attributes[attribute]?.type is 'boolean'
       completions.push(@buildAttributeValueCompletion(tag, attribute, 'true'))
       completions.push(@buildAttributeValueCompletion(tag, attribute, 'false'))
 
@@ -180,14 +170,15 @@ module.exports =
     return
 
   getPreviousAttribute: (editor, bufferPosition) ->
-    line = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition]).trim()
-
     # Remove everything until the opening quote
-    quoteIndex = line.length - 1
-    quoteIndex-- while line[quoteIndex] and not (line[quoteIndex] in ['"', "'"])
-    line = line.substring(0, quoteIndex)
+    quoteIndex = bufferPosition.column - 1 # Don't start at the end of the line
+    while quoteIndex
+      scopes = editor.scopeDescriptorForBufferPosition([bufferPosition.row, quoteIndex])
+      scopesArray = scopes.getScopesArray()
+      break if scopesArray.indexOf('punctuation.definition.string.begin.html') isnt -1
+      quoteIndex--
 
-    attributePattern.exec(line)?[1]
+    attributePattern.exec(editor.getTextInRange([[bufferPosition.row, 0], [bufferPosition.row, quoteIndex]]))?[1]
 
   getAttributeValues: (tag, attribute) ->
     # Some local attributes are valid for multiple tags but have different attribute values
