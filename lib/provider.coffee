@@ -74,9 +74,10 @@ module.exports =
     previousScopes = editor.scopeDescriptorForBufferPosition(previousBufferPosition)
     previousScopesArray = previousScopes.getScopesArray()
 
-    # autocomplete here: "|"
-    # not here: |""
-    # or here: ""|
+    # autocomplete here: attribute="|"
+    # not here: attribute=|""
+    # or here: attribute=""|
+    # or here: attribute="""|
     @hasStringScope(scopes) and @hasStringScope(previousScopesArray) and
       previousScopesArray.indexOf('punctuation.definition.string.end.html') is -1 and
       @hasTagScope(scopes) and
@@ -141,7 +142,7 @@ module.exports =
     for value in values when not prefix or firstCharsEqual(value, prefix)
       completions.push(@buildAttributeValueCompletion(tag, attribute, value))
 
-    if completions.length is 0 and @completions.attributes[attribute].type is 'boolean'
+    if completions.length is 0 and @completions.attributes[attribute]?.type is 'boolean'
       completions.push(@buildAttributeValueCompletion(tag, attribute, 'true'))
       completions.push(@buildAttributeValueCompletion(tag, attribute, 'false'))
 

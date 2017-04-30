@@ -394,6 +394,14 @@ describe "HTML autocompletions", ->
     expect(-> completions = getCompletions()).not.toThrow()
     expect(completions.length).toBe 0
 
+  it "does not throw when attempting to autocomplete values for nonexistent attributes", ->
+    editor.setText('<button typ=""')
+    editor.setCursorBufferPosition([0, 13])
+
+    completions = []
+    expect(-> completions = getCompletions()).not.toThrow()
+    expect(completions.length).toBe 0
+
   it "triggers autocomplete when an attibute has been inserted", ->
     spyOn(atom.commands, 'dispatch')
     suggestion = {type: 'attribute', text: 'whatever'}
