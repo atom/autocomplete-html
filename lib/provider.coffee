@@ -79,7 +79,8 @@ module.exports =
     # or here: ""|
     @hasStringScope(scopes) and @hasStringScope(previousScopesArray) and
       previousScopesArray.indexOf('punctuation.definition.string.end.html') is -1 and
-      @hasTagScope(scopes)
+      @hasTagScope(scopes) and
+      @getPreviousAttribute(editor, bufferPosition)?
 
   hasTagScope: (scopes) ->
     scopes.indexOf('meta.tag.any.html') isnt -1 or
