@@ -168,14 +168,15 @@ module.exports =
     return
 
   getPreviousAttribute: (editor, bufferPosition) ->
-    line = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition]).trim()
-
     # Remove everything until the opening quote
-    quoteIndex = line.length - 1
-    quoteIndex-- while line[quoteIndex] and not (line[quoteIndex] in ['"', "'"])
-    line = line.substring(0, quoteIndex)
+    quoteIndex = bufferPosition.column - 1 # Don't start at the end of the line
+    while quoteIndex
+      scopes = editor.scopeDescriptorForBufferPosition([bufferPosition.row, quoteIndex])
+      scopesArray = scopes.getScopesArray()
+      break if scopesArray.indexOf('punctuation.definition.string.begin.html') isnt -1
+      quoteIndex--
 
-    attributePattern.exec(line)?[1]
+    attributePattern.exec(editor.getTextInRange([[bufferPosition.row, 0], [bufferPosition.row, quoteIndex]]))?[1]
 
   getAttributeValues: (tag, attribute) ->
     # Some local attributes are valid for multiple tags but have different attribute values
