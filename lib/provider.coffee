@@ -1,9 +1,8 @@
-path = require 'path'
 COMPLETIONS = require '../completions.json'
 
-trailingWhitespace = /\s$/
 attributePattern = /\s+([a-zA-Z][-a-zA-Z]*)\s*=\s*$/
 tagPattern = /<([a-zA-Z][-a-zA-Z]*)(?:\s|$)/
+tagStartPattern = /<\s*$/
 
 module.exports =
   selector: '.text.html'
@@ -12,17 +11,12 @@ module.exports =
   completions: COMPLETIONS
 
   getSuggestions: (request) ->
-    {prefix} = request
     if @isAttributeValueStart(request)
       @getAttributeValueCompletions(request)
-    else if @isAttributeStartWithNoPrefix(request)
+    else if @isAttributeStart(request)
       @getAttributeNameCompletions(request)
-    else if @isAttributeStartWithPrefix(request)
-      @getAttributeNameCompletions(request, prefix)
-    else if @isTagStartWithNoPrefix(request)
-      @getTagNameCompletions()
-    else if @isTagStartTagWithPrefix(request)
-      @getTagNameCompletions(prefix)
+    else if @isTagStart(request)
+      @getTagNameCompletions(request)
     else
       []
 
@@ -32,29 +26,20 @@ module.exports =
   triggerAutocomplete: (editor) ->
     atom.commands.dispatch(atom.views.getView(editor), 'autocomplete-plus:activate', activatedManually: false)
 
-  isTagStartWithNoPrefix: ({prefix, scopeDescriptor}) ->
-    scopes = scopeDescriptor.getScopesArray()
-    if prefix is '<' and scopes.length is 1
-      scopes[0] is 'text.html.basic'
-    else if prefix is '<' and scopes.length is 2
-      scopes[0] is 'text.html.basic' and scopes[1] is 'meta.scope.outside-tag.html'
-    else
-      false
+  isTagStart: ({prefix, scopeDescriptor, bufferPosition, editor}) ->
+    return @hasTagScope(scopeDescriptor.getScopesArray()) if prefix.trim() and prefix.indexOf('<') is -1
 
-  isTagStartTagWithPrefix: ({prefix, scopeDescriptor}) ->
-    return false unless prefix
-    return false if trailingWhitespace.test(prefix)
-    @hasTagScope(scopeDescriptor.getScopesArray())
-
-  isAttributeStartWithNoPrefix: ({prefix, scopeDescriptor}) ->
-    return false unless trailingWhitespace.test(prefix)
-    @hasTagScope(scopeDescriptor.getScopesArray())
-
-  isAttributeStartWithPrefix: ({prefix, scopeDescriptor, bufferPosition, editor}) ->
-    return false unless prefix
-    return false if trailingWhitespace.test(prefix)
+    # autocomplete-plus's default prefix setting does not capture <. Manually check for it.
+    prefix = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition])
 
     scopes = scopeDescriptor.getScopesArray()
+
+    # Don't autocomplete in embedded languages
+    tagStartPattern.test(prefix) and scopes[0] is 'text.html.basic' and scopes.length is 1
+
+  isAttributeStart: ({prefix, scopeDescriptor, bufferPosition, editor}) ->
+    scopes = scopeDescriptor.getScopesArray()
+    return @hasTagScope(scopes) if prefix and not prefix.trim()
 
     previousBufferPosition = [bufferPosition.row, Math.max(0, bufferPosition.column - 1)]
     previousScopes = editor.scopeDescriptorForBufferPosition(previousBufferPosition)
@@ -94,9 +79,12 @@ module.exports =
     scopes.indexOf('string.quoted.double.html') isnt -1 or
       scopes.indexOf('string.quoted.single.html') isnt -1
 
-  getTagNameCompletions: (prefix) ->
+  getTagNameCompletions: ({prefix, editor, bufferPosition}) ->
+    # autocomplete-plus's default prefix setting does not capture <. Manually check for it.
+    ignorePrefix = tagStartPattern.test(editor.getTextInRange([[bufferPosition.row, 0], bufferPosition]))
+
     completions = []
-    for tag, options of @completions.tags when not prefix or firstCharsEqual(tag, prefix)
+    for tag, options of @completions.tags when ignorePrefix or firstCharsEqual(tag, prefix)
       completions.push(@buildTagCompletion(tag, options))
     completions
 
@@ -106,15 +94,15 @@ module.exports =
     description: description ? "HTML <#{tag}> tag"
     descriptionMoreURL: if description then @getTagDocsURL(tag) else null
 
-  getAttributeNameCompletions: ({editor, bufferPosition}, prefix) ->
+  getAttributeNameCompletions: ({prefix, editor, bufferPosition}) ->
     completions = []
     tag = @getPreviousTag(editor, bufferPosition)
     tagAttributes = @getTagAttributes(tag)
 
-    for attribute in tagAttributes when not prefix or firstCharsEqual(attribute, prefix)
+    for attribute in tagAttributes when not prefix.trim() or firstCharsEqual(attribute, prefix)
       completions.push(@buildLocalAttributeCompletion(attribute, tag, @completions.attributes[attribute]))
 
-    for attribute, options of @completions.attributes when not prefix or firstCharsEqual(attribute, prefix)
+    for attribute, options of @completions.attributes when not prefix.trim() or firstCharsEqual(attribute, prefix)
       completions.push(@buildGlobalAttributeCompletion(attribute, options)) if options.global
 
     completions

@@ -3,16 +3,13 @@ describe "HTML autocompletions", ->
 
   getCompletions = ->
     cursor = editor.getLastCursor()
-    start = cursor.getBeginningOfCurrentWordBufferPosition()
-    end = cursor.getBufferPosition()
-    prefix = editor.getTextInRange([start, end])
-    # The above implementation is a simplified version of what ac+ uses and
-    # is incorrect for attribute values. Fix the prefix when that happens
-    # so that we're testing actual scenarios
-    prefix = '' if prefix.startsWith('="') or prefix.startsWith("='")
+    bufferPosition = cursor.getBufferPosition()
+    line = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition])
+    # https://github.com/atom/autocomplete-plus/blob/9506a5c5fafca29003c59566cfc2b3ac37080973/lib/autocomplete-manager.js#L57
+    prefix = /(\b|['"~`!@#$%^&*(){}[\]=+,/?>])((\w+[\w-]*)|([.:;[{(< ]+))$/.exec(line)?[2] ? ''
     request =
       editor: editor
-      bufferPosition: end
+      bufferPosition: bufferPosition
       scopeDescriptor: cursor.getScopeDescriptor()
       prefix: prefix
     provider.getSuggestions(request)
