@@ -103,6 +103,19 @@ describe "HTML autocompletions", ->
     expect(completions[7].text).toBe 'dl'
     expect(completions[8].text).toBe 'dt'
 
+  it "does not autocomplete tag names if there's a space after the <", ->
+    editor.setText('< ')
+    editor.setCursorBufferPosition([0, 2])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
+    editor.setText('< h')
+    editor.setCursorBufferPosition([0, 2])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
   it "does not provide a descriptionMoreURL if the tag does not have a unique description", ->
     # ilayer does not have an associated MDN page as of April 27, 2017
     editor.setText('<i')

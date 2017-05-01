@@ -2,7 +2,6 @@ COMPLETIONS = require '../completions.json'
 
 attributePattern = /\s+([a-zA-Z][-a-zA-Z]*)\s*=\s*$/
 tagPattern = /<([a-zA-Z][-a-zA-Z]*)(?:\s|$)/
-tagStartPattern = /<\s*$/
 
 module.exports =
   selector: '.text.html'
@@ -30,12 +29,12 @@ module.exports =
     return @hasTagScope(scopeDescriptor.getScopesArray()) if prefix.trim() and prefix.indexOf('<') is -1
 
     # autocomplete-plus's default prefix setting does not capture <. Manually check for it.
-    prefix = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition])
+    prefix = editor.getTextInRange([[bufferPosition.row, bufferPosition.column - 1], bufferPosition])
 
     scopes = scopeDescriptor.getScopesArray()
 
     # Don't autocomplete in embedded languages
-    tagStartPattern.test(prefix) and scopes[0] is 'text.html.basic' and scopes.length is 1
+    prefix is '<' and scopes[0] is 'text.html.basic' and scopes.length is 1
 
   isAttributeStart: ({prefix, scopeDescriptor, bufferPosition, editor}) ->
     scopes = scopeDescriptor.getScopesArray()
@@ -82,7 +81,7 @@ module.exports =
 
   getTagNameCompletions: ({prefix, editor, bufferPosition}) ->
     # autocomplete-plus's default prefix setting does not capture <. Manually check for it.
-    ignorePrefix = tagStartPattern.test(editor.getTextInRange([[bufferPosition.row, 0], bufferPosition]))
+    ignorePrefix = editor.getTextInRange([[bufferPosition.row, bufferPosition.column - 1], bufferPosition]) is '<'
 
     completions = []
     for tag, options of @completions.tags when ignorePrefix or firstCharsEqual(tag, prefix)
