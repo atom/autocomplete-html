@@ -237,6 +237,31 @@ describe "HTML autocompletions", ->
     completions = getCompletions()
     expect(completions[0].snippet).toBe 'autofocus'
 
+  it "does not autocomplete attribute names in between an attribute name and value", ->
+    editor.setText('<select autofocus=""')
+    editor.setCursorBufferPosition([0, 18])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
+    editor.setText('<select autofocus= ""')
+    editor.setCursorBufferPosition([0, 18])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
+    editor.setText('<select autofocus= ""')
+    editor.setCursorBufferPosition([0, 19])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
+    editor.setText('<select autofocus=  ""')
+    editor.setCursorBufferPosition([0, 19])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
   it "does not autocomplete attribute names outside of a tag", ->
     editor.setText('<kbd>')
     editor.setCursorBufferPosition([0, 0])

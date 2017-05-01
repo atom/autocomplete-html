@@ -39,7 +39,7 @@ module.exports =
 
   isAttributeStart: ({prefix, scopeDescriptor, bufferPosition, editor}) ->
     scopes = scopeDescriptor.getScopesArray()
-    return @hasTagScope(scopes) if prefix and not prefix.trim()
+    return @hasTagScope(scopes) if not @getPreviousAttribute(editor, bufferPosition) and prefix and not prefix.trim()
 
     previousBufferPosition = [bufferPosition.row, Math.max(0, bufferPosition.column - 1)]
     previousScopes = editor.scopeDescriptorForBufferPosition(previousBufferPosition)
@@ -159,12 +159,12 @@ module.exports =
     return
 
   getPreviousAttribute: (editor, bufferPosition) ->
-    # Remove everything until the opening quote
+    # Remove everything until the opening quote (if we're in a string)
     quoteIndex = bufferPosition.column - 1 # Don't start at the end of the line
     while quoteIndex
       scopes = editor.scopeDescriptorForBufferPosition([bufferPosition.row, quoteIndex])
       scopesArray = scopes.getScopesArray()
-      break if scopesArray.indexOf('punctuation.definition.string.begin.html') isnt -1
+      break if not @hasStringScope(scopesArray) or scopesArray.indexOf('punctuation.definition.string.begin.html') isnt -1
       quoteIndex--
 
     attributePattern.exec(editor.getTextInRange([[bufferPosition.row, 0], [bufferPosition.row, quoteIndex]]))?[1]
