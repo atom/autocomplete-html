@@ -143,6 +143,20 @@ describe "HTML autocompletions", ->
       expect(completion.description.length).toBeGreaterThan 0
       expect(completion.type).toBe 'attribute'
 
+    editor.setText('<div >')
+    editor.setCursorBufferPosition([0, 5])
+
+    completions = getCompletions()
+    expect(completions.length).toBeGreaterThan 0
+    expect(completion.type).toBe 'attribute' for completion in completions
+
+    editor.setText('<div  >')
+    editor.setCursorBufferPosition([0, 5])
+
+    completions = getCompletions()
+    expect(completions.length).toBeGreaterThan 0
+    expect(completion.type).toBe 'attribute' for completion in completions
+
   it "autocompletes attribute names with a prefix", ->
     editor.setText('<div c')
     editor.setCursorBufferPosition([0, 6])
@@ -222,6 +236,16 @@ describe "HTML autocompletions", ->
 
     completions = getCompletions()
     expect(completions[0].snippet).toBe 'autofocus'
+
+  it "does not autocomplete attribute names outside of a tag", ->
+    editor.setText('<kbd>')
+    editor.setCursorBufferPosition([0, 0])
+
+    expect(getCompletions().length).toBe 0
+
+    editor.setCursorBufferPosition([0, 5])
+
+    expect(getCompletions().length).toBe 0
 
   it "does not throw when a local attribute is not in the attributes list", ->
     # Some tags, like body, have local attributes that are not present in the top-level attributes array

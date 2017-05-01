@@ -45,12 +45,13 @@ module.exports =
     previousScopes = editor.scopeDescriptorForBufferPosition(previousBufferPosition)
     previousScopesArray = previousScopes.getScopesArray()
 
-    return true if scopes.indexOf('entity.other.attribute-name.html') isnt -1 or
-      previousScopesArray.indexOf('entity.other.attribute-name.html') isnt -1
+    return true if previousScopesArray.indexOf('entity.other.attribute-name.html') isnt -1
     return false unless @hasTagScope(scopes)
 
-    scopes.indexOf('punctuation.definition.tag.html') isnt -1 or
-      scopes.indexOf('punctuation.definition.tag.end.html') isnt -1
+    # autocomplete here: <tag |>
+    # not here: <tag >|
+    scopes.indexOf('punctuation.definition.tag.end.html') isnt -1 and
+      previousScopesArray.indexOf('punctuation.definition.tag.end.html') is -1
 
   isAttributeValueStart: ({scopeDescriptor, bufferPosition, editor}) ->
     scopes = scopeDescriptor.getScopesArray()
