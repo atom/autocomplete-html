@@ -3,16 +3,13 @@ describe "HTML autocompletions", ->
 
   getCompletions = ->
     cursor = editor.getLastCursor()
-    start = cursor.getBeginningOfCurrentWordBufferPosition()
-    end = cursor.getBufferPosition()
-    prefix = editor.getTextInRange([start, end])
-    # The above implementation is a simplified version of what ac+ uses and
-    # is incorrect for attribute values. Fix the prefix when that happens
-    # so that we're testing actual scenarios
-    prefix = '' if prefix.startsWith('="') or prefix.startsWith("='")
+    bufferPosition = cursor.getBufferPosition()
+    line = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition])
+    # https://github.com/atom/autocomplete-plus/blob/9506a5c5fafca29003c59566cfc2b3ac37080973/lib/autocomplete-manager.js#L57
+    prefix = /(\b|['"~`!@#$%^&*(){}[\]=+,/?>])((\w+[\w-]*)|([.:;[{(< ]+))$/.exec(line)?[2] ? ''
     request =
       editor: editor
-      bufferPosition: end
+      bufferPosition: bufferPosition
       scopeDescriptor: cursor.getScopeDescriptor()
       prefix: prefix
     provider.getSuggestions(request)
@@ -106,6 +103,19 @@ describe "HTML autocompletions", ->
     expect(completions[7].text).toBe 'dl'
     expect(completions[8].text).toBe 'dt'
 
+  it "does not autocomplete tag names if there's a space after the <", ->
+    editor.setText('< ')
+    editor.setCursorBufferPosition([0, 2])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
+    editor.setText('< h')
+    editor.setCursorBufferPosition([0, 2])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
   it "does not provide a descriptionMoreURL if the tag does not have a unique description", ->
     # ilayer does not have an associated MDN page as of April 27, 2017
     editor.setText('<i')
@@ -145,6 +155,20 @@ describe "HTML autocompletions", ->
       expect(completion.displayText.length).toBeGreaterThan 0
       expect(completion.description.length).toBeGreaterThan 0
       expect(completion.type).toBe 'attribute'
+
+    editor.setText('<div >')
+    editor.setCursorBufferPosition([0, 5])
+
+    completions = getCompletions()
+    expect(completions.length).toBeGreaterThan 0
+    expect(completion.type).toBe 'attribute' for completion in completions
+
+    editor.setText('<div  >')
+    editor.setCursorBufferPosition([0, 5])
+
+    completions = getCompletions()
+    expect(completions.length).toBeGreaterThan 0
+    expect(completion.type).toBe 'attribute' for completion in completions
 
   it "autocompletes attribute names with a prefix", ->
     editor.setText('<div c')
@@ -225,6 +249,41 @@ describe "HTML autocompletions", ->
 
     completions = getCompletions()
     expect(completions[0].snippet).toBe 'autofocus'
+
+  it "does not autocomplete attribute names in between an attribute name and value", ->
+    editor.setText('<select autofocus=""')
+    editor.setCursorBufferPosition([0, 18])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
+    editor.setText('<select autofocus= ""')
+    editor.setCursorBufferPosition([0, 18])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
+    editor.setText('<select autofocus= ""')
+    editor.setCursorBufferPosition([0, 19])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
+    editor.setText('<select autofocus=  ""')
+    editor.setCursorBufferPosition([0, 19])
+
+    completions = getCompletions()
+    expect(completions.length).toBe 0
+
+  it "does not autocomplete attribute names outside of a tag", ->
+    editor.setText('<kbd>')
+    editor.setCursorBufferPosition([0, 0])
+
+    expect(getCompletions().length).toBe 0
+
+    editor.setCursorBufferPosition([0, 5])
+
+    expect(getCompletions().length).toBe 0
 
   it "does not throw when a local attribute is not in the attributes list", ->
     # Some tags, like body, have local attributes that are not present in the top-level attributes array
