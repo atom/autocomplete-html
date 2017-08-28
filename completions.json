@@ -213,7 +213,7 @@
       "description": "Represents a caption or a legend associated with a figure or an illustration described by the rest of the data of the figure element which is its immediate ancestor."
     },
     "figure": {
-      "description": "Represents self-contained content, frequently with a caption (figcaption), and is typically referenced as a single unit."
+      "description": "Represents self-contained content, frequently with a caption (figcaption), and is typically referenced as a single unit."
     },
     "footer": {
       "description": "Represents a footer for its nearest sectioning content or sectioning root element."
@@ -382,7 +382,7 @@
       "description": "Specifies relationships between the current document and an external resource."
     },
     "main": {
-      "description": "Represents the main content of the body of a document or application."
+      "description": "Represents the main content of the body of a document, portion of a document, or application."
     },
     "map": {
       "attributes": [
@@ -439,10 +439,10 @@
       "description": "Represents either a scalar value within a known range or a fractional value."
     },
     "nav": {
-      "description": "Represents a section of a page that links to other pages or to parts within the page: a section with navigation links."
+      "description": "Represents a section of a page whose purpose is to provide navigation links, either within the current document or to other documents."
     },
     "noscript": {
-      "description": "Defines a section of html to be inserted if a script type on the page is unsupported or if scripting is currently turned off in the browser."
+      "description": "Defines a section of HTML to be inserted if a script type on the page is unsupported or if scripting is currently turned off in the browser."
     },
     "object": {
       "attributes": [
@@ -985,7 +985,7 @@
     },
     "tabindex": {
       "global": "true",
-      "description": "An integer indicating if the element can take input focus (is focusable), if it should participate to sequential keyboard navigation, and if so, at what position."
+      "description": "Indicates if its element can be focused, and if/where it participates in sequential keyboard navigation (usually with the Tab key, hence the name)."
     },
     "title": {
       "global": "true",
