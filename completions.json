@@ -659,7 +659,7 @@
       "description": "Defines the title of the document, shown in a browser's title bar or on the page's tab."
     },
     "tr": {
-      "description": "Defines a row of cells in a table."
+      "description": "Specifies that the markup contained inside the tr block comprises one row of a table, inside which the th and td elements create header and data cells, respectively, within the row."
     },
     "track": {
       "attributes": [
