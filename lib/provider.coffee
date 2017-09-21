@@ -69,11 +69,9 @@ module.exports =
       @getPreviousAttribute(editor, bufferPosition)?
 
   hasTagScope: (scopes) ->
-    scopes.indexOf('meta.tag.any.html') isnt -1 or
-      scopes.indexOf('meta.tag.other.html') isnt -1 or
-      scopes.indexOf('meta.tag.block.any.html') isnt -1 or
-      scopes.indexOf('meta.tag.inline.any.html') isnt -1 or
-      scopes.indexOf('meta.tag.structure.any.html') isnt -1
+    for scope in scopes
+      return true if scope.startsWith('meta.tag.') and scope.endsWith('.html')
+    return false
 
   hasStringScope: (scopes) ->
     scopes.indexOf('string.quoted.double.html') isnt -1 or
