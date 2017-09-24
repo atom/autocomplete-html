@@ -181,7 +181,10 @@ module.exports =
     "#{@getTagDocsURL(tag)}#attr-#{attribute}"
 
   getGlobalAttributeDocsURL: (attribute) ->
-    "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
+    if attribute.startsWith('on')
+      "https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/#{attribute}"
+    else
+      "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"    
 
 firstCharsEqual = (str1, str2) ->
   str1[0].toLowerCase() is str2[0].toLowerCase()
