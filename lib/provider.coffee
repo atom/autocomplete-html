@@ -118,7 +118,7 @@ module.exports =
     displayText: attribute
     type: 'attribute'
     description: description ? "Global #{attribute} attribute"
-    descriptionMoreURL: @getGlobalAttributeDocsURL(attribute, description)
+    descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
 
   getAttributeValueCompletions: ({prefix, editor, bufferPosition}) ->
     completions = []
@@ -180,13 +180,13 @@ module.exports =
   getLocalAttributeDocsURL: (attribute, tag) ->
     "#{@getTagDocsURL(tag)}#attr-#{attribute}"
 
-  getGlobalAttributeDocsURL: (attribute, description) ->
+  getGlobalAttributeDocsURL: (attribute) ->
     if attribute.startsWith('on')
       "https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/#{attribute}"
     else if attribute.startsWith('aria-')
       # As of September 2017, MDN does not have pages for ARIA attributes
       "https://www.w3.org/TR/wai-aria-1.1/##{attribute}"
-    else if attribute.startsWith('role')
+    else if attribute is 'role'
       "https://www.w3.org/TR/wai-aria-1.1/#usage_intro"
     else
       "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"

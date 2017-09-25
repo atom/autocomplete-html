@@ -294,7 +294,7 @@ describe "HTML autocompletions", ->
     expect(-> completions = getCompletions()).not.toThrow()
     expect(completions[0].displayText).toBe 'onafterprint'
 
-  it "provide a descriptionMoreURL if the attribute does not have a unique description but starts with on*", ->
+  it "provides a descriptionMoreURL if the attribute does not have a unique description but starts with on*", ->
     editor.setText('<input on')
     editor.setCursorBufferPosition([0, 9])
 
@@ -303,6 +303,16 @@ describe "HTML autocompletions", ->
     expect(completions[0].displayText).toBe 'onabort'
     expect(completions[0].description).toBe 'Global onabort attribute'
     expect(completions[0].descriptionMoreURL.endsWith('/Web/API/GlobalEventHandlers/onabort')).toBe true
+
+  it "provides a descriptionMoreURL if the attribute is role", ->
+    editor.setText('<div ro')
+    editor.setCursorBufferPosition([0, 7])
+
+    completions = getCompletions()
+
+    expect(completions[0].displayText).toBe 'role'
+    expect(completions[0].description).toBe 'Global role attribute'
+    expect(completions[0].descriptionMoreURL.endsWith('/TR/wai-aria-1.1/#usage_intro')).toBe true
 
   it "autocompletes attribute values without a prefix", ->
     editor.setText('<marquee behavior=""')
