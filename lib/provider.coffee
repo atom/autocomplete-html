@@ -181,12 +181,15 @@ module.exports =
     "#{@getTagDocsURL(tag)}#attr-#{attribute}"
 
   getGlobalAttributeDocsURL: (attribute, description) ->
-    if description
-      "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
-    else if attribute.startsWith('on')
+    if attribute.startsWith('on')
       "https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/#{attribute}"
+    else if attribute.startsWith('aria-')
+      # As of September 2017, MDN does not have pages for ARIA attributes
+      "https://www.w3.org/TR/wai-aria-1.1/##{attribute}"
+    else if attribute.startsWith('role')
+      "https://www.w3.org/TR/wai-aria-1.1/#usage_intro"
     else
-      null
+      "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
 
 firstCharsEqual = (str1, str2) ->
   str1[0].toLowerCase() is str2[0].toLowerCase()
