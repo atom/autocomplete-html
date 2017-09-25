@@ -295,8 +295,8 @@ describe "HTML autocompletions", ->
     expect(completions[0].displayText).toBe 'onafterprint'
 
   it "does not provide a descriptionMoreURL if the attribute does not have a unique description and does not start with on*", ->
-    editor.setText('<input ar')
-    editor.setCursorBufferPosition([0, 9])
+    editor.setText('<input aria-')
+    editor.setCursorBufferPosition([0, 12])
 
     completions = getCompletions()
 
