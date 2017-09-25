@@ -294,7 +294,17 @@ describe "HTML autocompletions", ->
     expect(-> completions = getCompletions()).not.toThrow()
     expect(completions[0].displayText).toBe 'onafterprint'
 
-  it "does not provide a descriptionMoreURL if the attribute does not have a unique description", ->
+  it "does not provide a descriptionMoreURL if the attribute does not have a unique description and does not start with on*", ->
+    editor.setText('<input aria')
+    editor.setCursorBufferPosition([0, 9])
+
+    completions = getCompletions()
+
+    expect(completions[0].displayText).toBe 'aria-busy'
+    expect(completions[0].description).toBe 'Global aria-busy attribute'
+    expect(completions[0].descriptionMoreURL).toBeNull()
+
+  it "provide a descriptionMoreURL if the attribute does not have a unique description but starts with on*", ->
     editor.setText('<input on')
     editor.setCursorBufferPosition([0, 9])
 
@@ -302,7 +312,7 @@ describe "HTML autocompletions", ->
 
     expect(completions[0].displayText).toBe 'onabort'
     expect(completions[0].description).toBe 'Global onabort attribute'
-    expect(completions[0].descriptionMoreURL).toBeNull()
+    expect(completions[0].descriptionMoreURL.endsWith('/Web/API/GlobalEventHandlers/onabort')).toBe true
 
   it "autocompletes attribute values without a prefix", ->
     editor.setText('<marquee behavior=""')
