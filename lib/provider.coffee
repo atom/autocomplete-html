@@ -118,7 +118,7 @@ module.exports =
     displayText: attribute
     type: 'attribute'
     description: description ? "Global #{attribute} attribute"
-    descriptionMoreURL: if description then @getGlobalAttributeDocsURL(attribute) else null
+    descriptionMoreURL: @getGlobalAttributeDocsURL(attribute,description)
 
   getAttributeValueCompletions: ({prefix, editor, bufferPosition}) ->
     completions = []
@@ -180,11 +180,13 @@ module.exports =
   getLocalAttributeDocsURL: (attribute, tag) ->
     "#{@getTagDocsURL(tag)}#attr-#{attribute}"
 
-  getGlobalAttributeDocsURL: (attribute) ->
-    if attribute.startsWith('on')
+  getGlobalAttributeDocsURL: (attribute,description) ->
+    if description
+      "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
+    else if attribute.startsWith('on')
       "https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/#{attribute}"
     else
-      "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
-      
+      null
+
 firstCharsEqual = (str1, str2) ->
   str1[0].toLowerCase() is str2[0].toLowerCase()
