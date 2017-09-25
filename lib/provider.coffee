@@ -118,7 +118,7 @@ module.exports =
     displayText: attribute
     type: 'attribute'
     description: description ? "Global #{attribute} attribute"
-    descriptionMoreURL: @getGlobalAttributeDocsURL(attribute,description)
+    descriptionMoreURL: @getGlobalAttributeDocsURL(attribute, description)
 
   getAttributeValueCompletions: ({prefix, editor, bufferPosition}) ->
     completions = []
@@ -180,7 +180,7 @@ module.exports =
   getLocalAttributeDocsURL: (attribute, tag) ->
     "#{@getTagDocsURL(tag)}#attr-#{attribute}"
 
-  getGlobalAttributeDocsURL: (attribute,description) ->
+  getGlobalAttributeDocsURL: (attribute, description) ->
     if description
       "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
     else if attribute.startsWith('on')
