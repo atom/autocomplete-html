@@ -12,7 +12,21 @@ describe "HTML autocompletions", ->
       bufferPosition: bufferPosition
       scopeDescriptor: cursor.getScopeDescriptor()
       prefix: prefix
-    provider.getSuggestions(request)
+
+    filterByPrefix(provider.getSuggestions(request), prefix)
+
+
+  filterByPrefix = (rawSuggestionsList, prefix) ->
+    if prefix.length < 3
+      rawSuggestionsList
+    else
+      filteredSuggestionsList = []
+      for suggestion in rawSuggestionsList
+        attribute = suggestion.text or suggestion.displayText
+        if attribute.indexOf(prefix) isnt -1
+          filteredSuggestionsList.push suggestion
+
+      filteredSuggestionsList
 
   beforeEach ->
     waitsForPromise -> atom.packages.activatePackage('autocomplete-html')
@@ -303,6 +317,16 @@ describe "HTML autocompletions", ->
     expect(completions[0].displayText).toBe 'onabort'
     expect(completions[0].description).toBe 'Global onabort attribute'
     expect(completions[0].descriptionMoreURL.endsWith('/Web/API/GlobalEventHandlers/onabort')).toBe true
+
+  it "provides a descriptionMoreURL if the attribute is role", ->
+    editor.setText('<div aria')
+    editor.setCursorBufferPosition([0, 9])
+
+    completions = getCompletions()
+
+    expect(completions[0].displayText).toBe 'aria-activedescendant'
+    expect(completions[0].description).toBe 'Global aria-activedescendant attribute'
+    expect(completions[0].descriptionMoreURL.endsWith('/TR/wai-aria-1.1/#aria-activedescendant')).toBe true
 
   it "provides a descriptionMoreURL if the attribute is role", ->
     editor.setText('<div ro')
