@@ -169,7 +169,7 @@ module.exports =
   getAttributeValues: (tag, attribute) ->
     # Some local attributes are valid for multiple tags but have different attribute values
     # To differentiate them, they are identified in the completions file as tag/attribute
-    @completions.attributes[attribute]?.attribOption ? @completions.attributes["#{tag}/#{attribute}"]?.attribOption ? []
+    @completions.attributes["#{tag}/#{attribute}"]?.attribOption ? @completions.attributes[attribute]?.attribOption ? []
 
   getTagAttributes: (tag) ->
     @completions.tags[tag]?.attributes ? []
