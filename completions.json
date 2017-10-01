@@ -745,9 +745,7 @@
       "description": "An enumerated attribute indicating what types of content can be dropped on an element, using the Drag and Drop API."
     },
     "hidden": {
-      "attribOption": [
-        "hidden"
-      ],
+      "type": "flag",
       "global": "true",
       "description": "A Boolean attribute indicating that the element is not yet, or is no longer, relevant."
     },
