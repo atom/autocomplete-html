@@ -15,7 +15,7 @@
       "description": "Represents an abbreviation and optionally provides a full description for it."
     },
     "address": {
-      "description": "Supplies contact information for its nearest article or body ancestor; in the latter case, it applies to the whole document."
+      "description": "Indicates that the enclosed HTML provides contact information for a person or people, or for an organization."
     },
     "area": {
       "attributes": [
@@ -35,7 +35,7 @@
       "description": "Represents a self-contained composition in a document, page, application, or site, which is intended to be independently distributable or reusable (e."
     },
     "aside": {
-      "description": "Represents a section of a document with content connected tangentially to the main content of the document (often presented as a sidebar)."
+      "description": "Represents a portion of a document whose content is only indirectly related to the document's main content."
     },
     "audio": {
       "attributes": [
@@ -111,14 +111,14 @@
         "type",
         "value"
       ],
-      "description": "Represents a clickable button."
+      "description": "Represents a clickable button, which can be used in forms, or anywhere in a document that needs simple, standard button functionality."
     },
     "canvas": {
       "attributes": [
         "height",
         "width"
       ],
-      "description": "Use the HTML canvas element with the canvas scripting API to draw graphics and animations."
+      "description": "Use the HTML canvas element with either the canvas scripting API or the WebGL API to draw graphics and animations."
     },
     "caption": {
       "description": "Represents the title of a table."
@@ -127,7 +127,7 @@
       "description": "Represents a reference to a creative work."
     },
     "code": {
-      "description": "Represents a fragment of computer code."
+      "description": "Displays its contents styled in a fashion intended to indicate that the text is a short fragment of computer code."
     },
     "col": {
       "attributes": [
@@ -156,7 +156,7 @@
       "description": "Contains a set of option elements that represent the values available for other controls."
     },
     "dd": {
-      "description": "Indicates the description of a term in a description list (dl)."
+      "description": "Provides the details about or the definition of the preceding term (dt) in a description list (dl)."
     },
     "del": {
       "attributes": [
@@ -187,7 +187,7 @@
       "description": "Represents a description list."
     },
     "dt": {
-      "description": "Identifies a term in a description list."
+      "description": "Specifies a term in a description or definition list, and as such must be used inside a dl element."
     },
     "em": {
       "description": "Marks text that has stress emphasis."
@@ -199,7 +199,7 @@
         "type",
         "width"
       ],
-      "description": "Represents an integration point for an external application or interactive content (in other words, a plug-in)."
+      "description": "Embeds external content at the specified point in the document."
     },
     "fieldset": {
       "attributes": [
@@ -259,7 +259,7 @@
       "description": "Represents a multi-level heading for a section of a document."
     },
     "hr": {
-      "description": "Represents a thematic break between paragraph-level elements (for example, a change of scene in a story, or a shift of topic with a section)."
+      "description": "Represents a thematic break between paragraph-level elements (for example, a change of scene in a story, or a shift of topic with a section); historically, this has been presented as a horizontal rule or line."
     },
     "html": {
       "attributes": [
@@ -295,7 +295,7 @@
         "usemap",
         "width"
       ],
-      "description": "Represents an image in the document."
+      "description": "Embeds an image into the document."
     },
     "input": {
       "attributes": [
@@ -504,7 +504,7 @@
       "description": "Defines parameters for an object element."
     },
     "pre": {
-      "description": "Represents preformatted text."
+      "description": "Represents preformatted text which is to be presented exactly as written in the HTML file."
     },
     "progress": {
       "attributes": [
@@ -512,7 +512,7 @@
         "max",
         "value"
       ],
-      "description": "Represents the completion progress of a task, typically displayed as a progress bar."
+      "description": "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar."
     },
     "q": {
       "attributes": [
@@ -521,10 +521,10 @@
       "description": "Indicates that the enclosed text is a short inline quotation."
     },
     "rp": {
-      "description": "Used to provide fall-back parentheses for browsers that do not support display of ruby annotations using the ruby element."
+      "description": "The HTML Ruby Fallback Parenthesis (rp) element is used to provide fall-back parentheses for browsers that do not support display of ruby annotations using the ruby element."
     },
     "rt": {
-      "description": "Embraces pronunciation of characters presented in a ruby annotations, which are used to describe the pronunciation of East Asian characters."
+      "description": "The HTML Ruby Text (rt) element specifies the ruby text component of a ruby annotation, which is used to provide pronunciation, translation, or transliteration information for East Asian typography."
     },
     "ruby": {
       "description": "Represents a ruby annotation."
@@ -540,10 +540,10 @@
         "src",
         "type"
       ],
-      "description": "Used to embed or reference an executable script."
+      "description": "Used to embed or reference executable code; this is typically used to embed or refer to JavaScript code."
     },
     "section": {
-      "description": "Represents a standalone section of functionality contained within an HTML document, typically with a heading, which doesn't have a more specific semantic element to represent it."
+      "description": "Represents a standalone section — which doesn't have a more specific semantic element to represent it — contained within an HTML document."
     },
     "select": {
       "attributes": [
@@ -566,13 +566,13 @@
         "src",
         "type"
       ],
-      "description": "Specifies multiple media resources for either the picture, the audio or the video element."
+      "description": "Specifies multiple media resources for the picture, the audio element, or the video element."
     },
     "span": {
       "description": "A generic inline container for phrasing content, which does not inherently represent anything."
     },
     "strong": {
-      "description": "Gives text strong importance, and is typically displayed in bold."
+      "description": "Gives text strong importance and is typically displayed in bold."
     },
     "style": {
       "attributes": [
@@ -596,7 +596,7 @@
       "attributes": [
         "border"
       ],
-      "description": "Represents tabular data — that is, information expressed via a two-dimensional data table."
+      "description": "Represents tabular data — that is, information presented in a two-dimensional table comprised of rows and columns of cells containing data."
     },
     "tbody": {
       "description": "Groups one or more tr elements as the body of a table element."
