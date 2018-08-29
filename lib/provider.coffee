@@ -118,7 +118,7 @@ module.exports =
     displayText: attribute
     type: 'attribute'
     description: description ? "Global #{attribute} attribute"
-    descriptionMoreURL: if description then @getGlobalAttributeDocsURL(attribute) else null
+    descriptionMoreURL: @getGlobalAttributeDocsURL(attribute)
 
   getAttributeValueCompletions: ({prefix, editor, bufferPosition}) ->
     completions = []
@@ -181,7 +181,15 @@ module.exports =
     "#{@getTagDocsURL(tag)}#attr-#{attribute}"
 
   getGlobalAttributeDocsURL: (attribute) ->
-    "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
+    if attribute.startsWith('on')
+      "https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/#{attribute}"
+    else if attribute.startsWith('aria-')
+      # As of September 2017, MDN does not have pages for ARIA attributes
+      "https://www.w3.org/TR/wai-aria-1.1/##{attribute}"
+    else if attribute is 'role'
+      "https://www.w3.org/TR/wai-aria-1.1/#usage_intro"
+    else
+      "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/#{attribute}"
 
 firstCharsEqual = (str1, str2) ->
   str1[0].toLowerCase() is str2[0].toLowerCase()
