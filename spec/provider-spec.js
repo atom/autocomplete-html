@@ -426,16 +426,17 @@ describe('HTML autocompletions', () => {
     expect(completions[1].text).toBe('reset')
     expect(completions[2].text).toBe('submit')
 
-    editor.setText('<link type=""')
-    editor.setCursorBufferPosition([0, 12])
+    editor.setText('<link rel=""')
+    editor.setCursorBufferPosition([0, 11])
 
     completions = getCompletions()
-    expect(completions.length).toBe(1)
+    expect(completions.length).toBe(13)
+    expect(completions.map(_ => _.text)).toContain('stylesheet')
 
-    expect(completions[0].text).toBe('text/css')
+    expect(completions[0].text).toBe('alternate')
     expect(completions[0].type).toBe('value')
     expect(completions[0].description.length).toBeGreaterThan(0)
-    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/link#attr-type')).toBe(true)
+    expect(completions[0].descriptionMoreURL.endsWith('/HTML/Element/link#attr-rel')).toBe(true)
   })
 
   it("provides 'true' and 'false' suggestions when autocompleting boolean attributes", () => {
