@@ -15,11 +15,9 @@ describe('HTML autocompletions', () => {
   beforeEach(() => {
     waitsForPromise(() => atom.packages.activatePackage('autocomplete-html'))
     waitsForPromise(() => atom.packages.activatePackage('language-html'))
+    waitsForPromise(() => atom.workspace.open('test.html'))
 
     runs(() => provider = atom.packages.getActivePackage('autocomplete-html').mainModule.getProvider())
-
-    waitsFor(() => Object.keys(provider.completions).length > 0)
-    waitsForPromise(() => atom.workspace.open('test.html'))
     runs(() => editor = atom.workspace.getActiveTextEditor())
   })
 
@@ -309,8 +307,7 @@ describe('HTML autocompletions', () => {
     editor.setText('<body ')
     editor.setCursorBufferPosition([0, 6])
 
-    let completions = []
-    expect(() => completions = getCompletions()).not.toThrow()
+    const completions = getCompletions()
     expect(completions[0].displayText).toBe('onafterprint')
   })
 
