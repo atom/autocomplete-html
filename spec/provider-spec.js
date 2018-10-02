@@ -501,4 +501,21 @@ describe('HTML autocompletions', () => {
     expect(args[0].tagName.toLowerCase()).toBe('atom-text-editor')
     expect(args[1]).toBe('autocomplete-plus:activate')
   })
+
+  it('does not error in EJS documents', () => {
+    waitsForPromise(async () => {
+      await atom.workspace.open('test.html.ejs')
+      editor = atom.workspace.getActiveTextEditor()
+      editor.setText('<span><% a = ""; %></span>')
+    })
+
+    waitsForPromise(() => {
+      return atom.packages.activatePackage('language-javascript')
+    })
+
+    runs(() => {
+      editor.setCursorBufferPosition([0, editor.getText().indexOf('""') + 1])
+      expect(() => getCompletions()).not.toThrow()
+    })
+  })
 })
