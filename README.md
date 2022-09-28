@@ -1,4 +1,5 @@
-# HTML Autocomplete package
+##### Atom and all repositories under Atom will be archived on December 15, 2022. Learn more in our [official announcement](https://github.blog/2022-06-08-sunsetting-atom/)
+ # HTML Autocomplete package
 [![OS X Build Status](https://travis-ci.org/atom/autocomplete-html.svg?branch=master)](https://travis-ci.org/atom/autocomplete-html) [![Windows Build Status](https://ci.appveyor.com/api/projects/status/bsaqbg1fljpd9q1b/branch/master?svg=true)](https://ci.appveyor.com/project/Atom/autocomplete-html/branch/master) [![Dependency Status](https://david-dm.org/atom/autocomplete-html.svg)](https://david-dm.org/atom/autocomplete-html)
 
 HTML tag and attribute autocompletions in Atom.
